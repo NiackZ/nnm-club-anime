@@ -6,7 +6,7 @@
 // @author        ElSwanko
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
-// @downloadURL   https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.full.js
+// @downloadURL   https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.user.js
 // @include       http://www.world-art.ru/animation/*
 // @include       https://www.world-art.ru/animation/*
 // @match         http://www.world-art.ru/animation/*
