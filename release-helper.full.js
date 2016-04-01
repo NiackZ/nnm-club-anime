@@ -1122,6 +1122,7 @@ function IFCommunicator() {
     }
 }
 
+var isLoaded = false;
 function loadingHelper() {
     if (!isLoaded) {
         isLoaded = true;
