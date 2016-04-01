@@ -2,22 +2,26 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.1
+// @version       1.0.0.3
 // @author        ElSwanko
-// @grant         none
+// @homepage      https://github.com/ElSwanko/nnm-club-anime
+// @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
+// @downloadURL   https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.full.js
 // @include       http://www.world-art.ru/animation/*
 // @include       https://www.world-art.ru/animation/*
+// @match         http://www.world-art.ru/animation/*
+// @match         https://www.world-art.ru/animation/*
 // @include       http://nnmclub.to/forum/release.php?what=anime_common*
 // @include       https://nnmclub.to/forum/release.php?what=anime_common*
 // @include       http://*.nnmclub.to/forum/release.php?what=anime_common*
 // @include       https://*.nnmclub.to/forum/release.php?what=anime_common*
-// @match         http://www.world-art.ru/animation/*
-// @match         https://www.world-art.ru/animation/*
 // @match         http://nnmclub.to/forum/release.php?what=anime_common*
 // @match         https://nnmclub.to/forum/release.php?what=anime_common*
 // @match         http://*.nnmclub.to/forum/release.php?what=anime_common*
 // @match         https://*.nnmclub.to/forum/release.php?what=anime_common*
+// @grant         none
 // ==/UserScript==
+//
 
 function WAHelper() {
 
@@ -156,9 +160,7 @@ function WAHelper() {
     function setMediaInfo() {
         var div = document.getElementById('helperDiv');
         mediaInfo = div.querySelector('textarea#mediaInfo').value;
-        localStorage.mi = mediaInfo;
         quality = div.querySelector('input#quality').value;
-        localStorage.q = quality;
         closeDiv(div);
     }
 
@@ -187,7 +189,7 @@ function WAHelper() {
     }
 
     function process() {
-        var page = waProcessor.loadPage(document.location.href);
+        var page = document.body;//waProcessor.loadPage(document.location.href);
         var data = waProcessor.loadData(page);
         var mi = miProcessor.parseMediaInfo(mediaInfo);
 
@@ -753,7 +755,8 @@ function WAProcessor() {
     }
 
     function getDescription(page) {
-        return getTextFromNearTable(page.querySelectorAll('font[size="2"][color="#99000"]'), 'Краткое содержание:');
+        return getTextFromNearTable(page.querySelectorAll('font[size="2"][color="#99000"]'), 'Краткое содержание:').
+            replace('при копировании текста активная ссылка на www.world-art.ru обязательна, подробнее о перепечатке текстов\n', '');
     }
 
     function getNotes(page) {
@@ -856,14 +859,16 @@ function MIProcessor() {
         var audio = [];
         var text = [];
         for (i = 0; i < parts.length; i++) {
-            if (parts[i].name == 'General' || parts[i].name == 'Общее') {
-                general = parseGeneral(parts[i]);
-            } else if (parts[i].name.indexOf('Video') == 0 || parts[i].name.indexOf('Видео') == 0) {
-                video.push(parseVideo(parts[i]));
-            } else if (parts[i].name.indexOf('Audio') == 0 || parts[i].name.indexOf('Аудио') == 0) {
-                audio.push(parseAudio(parts[i]));
-            } else if (parts[i].name.indexOf('Text') == 0 || parts[i].name.indexOf('Текст') == 0) {
-                text.push(parseText(parts[i]));
+            if (parts[i].name) {
+                if (parts[i].name == 'General' || parts[i].name == 'Общее') {
+                    general = parseGeneral(parts[i]);
+                } else if (parts[i].name.indexOf('Video') == 0 || parts[i].name.indexOf('Видео') == 0) {
+                    video.push(parseVideo(parts[i]));
+                } else if (parts[i].name.indexOf('Audio') == 0 || parts[i].name.indexOf('Аудио') == 0) {
+                    audio.push(parseAudio(parts[i]));
+                } else if (parts[i].name.indexOf('Text') == 0 || parts[i].name.indexOf('Текст') == 0) {
+                    text.push(parseText(parts[i]));
+                }
             }
         }
 
