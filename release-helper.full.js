@@ -1122,15 +1122,25 @@ function IFCommunicator() {
     }
 }
 
-var ifCommunicator = IFCommunicator();
-var script = document.createElement('script');
-var textContent = TextHelper.toString() + MIProcessor.toString();
-if (window.location.href.indexOf('nnmclub') > -1) {
-    textContent += NNMHelper.toString() + ' var nnmHelper = NNMHelper(); nnmHelper.drawLinks(); ';
-    window.addEventListener("message", ifCommunicator.nnmListener, false);
-} else {
-    textContent += WAHelper.toString() + WAProcessor.toString() + ' var waHelper = WAHelper(); waHelper.drawLinks(); ';
-    window.addEventListener("message", ifCommunicator.waListener, false);
+function loadingHelper() {
+    if (!isLoaded) {
+        isLoaded = true;
+        window.removeEventListener("load", loadingHelper, false);
+        window.removeEventListener("DOMContentLoaded", loadingHelper, false);
+        var ifCommunicator = IFCommunicator();
+        var script = document.createElement('script');
+        var textContent = TextHelper.toString() + MIProcessor.toString();
+        if (window.location.href.indexOf('nnmclub') > -1) {
+            textContent += NNMHelper.toString() + ' var nnmHelper = NNMHelper(); nnmHelper.drawLinks(); ';
+            window.addEventListener("message", ifCommunicator.nnmListener, false);
+        } else {
+            textContent += WAHelper.toString() + WAProcessor.toString() + ' var waHelper = WAHelper(); waHelper.drawLinks(); ';
+            window.addEventListener("message", ifCommunicator.waListener, false);
+        }
+        script.textContent = textContent;
+        document.body.appendChild(script);
+    }
 }
-script.textContent = textContent;
-document.body.appendChild(script);
+
+window.addEventListener('DOMContentLoaded', loadingHelper, false);
+window.addEventListener('load', loadingHelper, false);
