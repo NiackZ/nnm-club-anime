@@ -2,26 +2,22 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.2
+// @version       1.0.0.1
 // @author        ElSwanko
-// @homepage      https://github.com/ElSwanko/nnm-club-anime
-// @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
-// @downloadURL   https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.full.js
+// @grant         none
 // @include       http://www.world-art.ru/animation/*
 // @include       https://www.world-art.ru/animation/*
-// @match         http://www.world-art.ru/animation/*
-// @match         https://www.world-art.ru/animation/*
 // @include       http://nnmclub.to/forum/release.php?what=anime_common*
 // @include       https://nnmclub.to/forum/release.php?what=anime_common*
 // @include       http://*.nnmclub.to/forum/release.php?what=anime_common*
 // @include       https://*.nnmclub.to/forum/release.php?what=anime_common*
+// @match         http://www.world-art.ru/animation/*
+// @match         https://www.world-art.ru/animation/*
 // @match         http://nnmclub.to/forum/release.php?what=anime_common*
 // @match         https://nnmclub.to/forum/release.php?what=anime_common*
 // @match         http://*.nnmclub.to/forum/release.php?what=anime_common*
 // @match         https://*.nnmclub.to/forum/release.php?what=anime_common*
-// @grant         none
 // ==/UserScript==
-//
 
 function WAHelper() {
 
@@ -160,7 +156,9 @@ function WAHelper() {
     function setMediaInfo() {
         var div = document.getElementById('helperDiv');
         mediaInfo = div.querySelector('textarea#mediaInfo').value;
+        localStorage.mi = mediaInfo;
         quality = div.querySelector('input#quality').value;
+        localStorage.q = quality;
         closeDiv(div);
     }
 
@@ -189,152 +187,151 @@ function WAHelper() {
     }
 
     function process() {
-        try {
-            var page = document;//waProcessor.loadPage(document.location.href);
-            var data = waProcessor.loadData(page);
+        var page = waProcessor.loadPage(document.location.href);
+        var data = waProcessor.loadData(page);
+        var mi = miProcessor.parseMediaInfo(mediaInfo);
 
-            var result = (localStorage.template || defaultTemplate).replace('_POSTER_', data.poster);
-            result = result.replace('_STRINGNAMES_', data.stringNames);
-            result = result.replace('_NAMES_', data.names);
+        var result = (localStorage.template || defaultTemplate).replace('_POSTER_', data.poster);
+        result = result.replace('_STRINGNAMES_', data.stringNames);
+        result = result.replace('_NAMES_', data.names);
 
-            if (data.company) {
-                result = result.replace('_COMPANY_', '[url=' + data.company.url + ']' + data.company.name + '[/url]');
-            }
-
-            var count = data.infoBlock['Количество'];
-            var shortType = data.infoBlock['Сокращённый тип'];
-            var header = '[' + data.year + ', ' + shortType + (count > 1 ? ', ' + count : '') + ']';
-
-            result = result.replace('_GENRE_', data.infoBlock['Жанр']);
-            result = result.replace('_TYPE_', data.infoBlock['Тип']);
-            result = result.replace('_DURATION_', count + ' эп. по ' + data.infoBlock['Продолжительность']);
-            result = result.replace('_COUNT_', count + ' из ' + count);
-            if (data.infoBlock['Выпуск']) {
-                result = result.replace('_DATE_', data.infoBlock['Выпуск']);
-            }
-            if (data.infoBlock['Премьера']) {
-                result = result.replace('_DATE_', data.infoBlock['Премьера']);
-            }
-            var text = data.infoBlock['Автор оригинала'];
-            if (text) {
-                result = result.replace('_AUTHOR_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
-            }
-            text = data.infoBlock['Режиссёр'];
-            if (text) {
-                result = result.replace('_DIRECTOR_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
-            }
-            text = data.infoBlock['Сценарий'];
-            if (text) {
-                result = result.replace('_SCENARY_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
-            }
-            if (data.description) {
-                result = result.replace('_DESCRIPTION_', data.description);
-            }
-            if (data.notes) {
-                result = result.replace('_NOTES_', data.notes);
-            }
-            if (data.episodes) {
-                text = '';
-                var max = data.episodes[data.episodes.length - 1].number;
-                for (i = 0; i < data.episodes.length; i++) {
-                    text += '[b]' + textHelper.padZero(data.episodes[i].number, max) +
-                            '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]\n';
-                }
-                result = result.replace('_EPISODES_', text);
-            }
-            if (data.crossLinks) {
-                text = '';
-                for (var i = 0; i < data.crossLinks.length; i++) {
-                    text += '\n' + data.crossLinks[i];
-                }
-                result = result.replace('_CROSSLINKS_', text);
-            }
-            text = '[url=' + document.location.href + ']World-Art[/url]';
-            if (data.infoLinks['ANN']) {
-                text += ', [url=' + data.infoLinks['ANN'] + ']ANN[/url]';
-            }
-            if (data.infoLinks['AniDB']) {
-                text += ', [url=' + data.infoLinks['AniDB'] + ']AniDB[/url]';
-            }
-            if (data.infoLinks['MyAnimeList']) {
-                text += ', [url=' + data.infoLinks['MyAnimeList'] + ']MyAnimeList[/url]';
-            }
-            if (data.infoLinks['Сетка вещания']) {
-                text += ', [url=' + data.infoLinks['Сетка вещания'] + ']Сетка вещания[/url]';
-            }
-            result = result.replace('_INFOLINKS_', text);
-            if (quality) {
-                result = result.replace('_QUALITY_', quality);
-                header += ' ' + quality;
-            }
-
-            var mi = miProcessor.parseMediaInfo(mediaInfo);
-            if (mi) {
-                if (mi.general) {
-                    result = result.replace('_DURATION_', count + ' эп. по ' + mi.general.duration.total + ' мин.');
-                }
-
-                var video = '';
-                if (mi.video.length == 1) {
-                    video = mi.video[0].string;
-                    header += ' ' + mi.video[0].scanType + (mi.video[0].butDepth == 10 ? ' Hi10P' : '');
-                } else {
-                    for (i = 0; i < mi.video.length; i++) {
-                        video += '#' + (i + 1) + ': ' + mi.video[i].string + '; ';
-                    }
-                }
-                result = result.replace('_VIDEO_', video);
-
-                var audio = '';
-                var sound = '';
-                var block = '';
-                if (mi.audio.length == 1) {
-                    audio = mi.audio[0].string;
-                    if (mi.audio[0].lang !== 'und') {
-                        sound = mi.audio[0].language;
-                    }
-                    header += ' ' + (mi.audio[0].lang === 'jap' ? 'raw' : mi.audio[0].lang);
-                    block = '[b]Аудио:[/b] ' + audio + ' | [b]Звук:[/b] ' + sound;
-                } else {
-                    for (i = 0; i < mi.audio.length; i++) {
-                        audio += '#' + (i + 1) + ': ' + mi.audio[i].string + '; ';
-                        if (mi.audio[i].lang !== 'und') {
-                            sound += '#' + (i + 1) + ': ' + mi.audio[i].language + '; ';
-                        }
-                        var lang = mi.audio[0].lang === 'jap' ? 'raw' : mi.audio[0].lang;
-                        block += '[b]Аудио #' + (i + 1) + ':[/b] ' + mi.audio[i].string +
-                                ' | [b]Звук:[/b] ' + mi.audio[i].language + '\n';
-                        header += (header.indexOf(lang) == -1 ? (i == 0 ? ' ' : '+') + lang : '');
-                    }
-                }
-                result = result.replace('_AUDIOLINE_', audio);
-                result = result.replace('_SOUNDLINE_', sound);
-                result = result.replace('_AUDIOBLOCK_', block);
-
-                var subs = '';
-                if (mi.text.length == 1) {
-                    if (mi.text[0].lang !== 'und') {
-                        subs = mi.text[0].language;
-                    }
-                } else {
-                    for (i = 0; i < mi.text.length; i++) {
-                        var language = mi.text[i].language;
-                        if (mi.text[i].lang !== 'und') {
-                            subs += (subs.indexOf(language) == -1 ? '#' + (i + 1) + ': ' + language + '; ' : '');
-                        }
-                    }
-                }
-                result = result.replace('_SUBSLANG_', subs);
-                result = result.replace('_MEDIAINFO_', mediaInfo);
-            }
-            result = result.replace('_HEADER_', header);
-
-            console.log('result: \n' + result);
-
-            copyTextToClipboard(result);
-        } catch (e) {
-            console.error(e);
+        if (data.company) {
+            result = result.replace('_COMPANY_', '[url=' + data.company.url + ']' + data.company.name + '[/url]');
         }
+
+        var count = data.infoBlock['Количество'];
+        var shortType = data.infoBlock['Сокращённый тип'];
+        var header = '[' + data.year + ', ' + shortType + (count > 1 ? ', ' + count : '') + ']';
+
+        result = result.replace('_GENRE_', data.infoBlock['Жанр']);
+        result = result.replace('_TYPE_', data.infoBlock['Тип']);
+        result = result.replace('_DURATION_', count + ' эп. по ' + data.infoBlock['Продолжительность']);
+        result = result.replace('_COUNT_', count + ' из ' + count);
+        if (data.infoBlock['Выпуск']) {
+            result = result.replace('_DATE_', data.infoBlock['Выпуск']);
+        }
+        if (data.infoBlock['Премьера']) {
+            result = result.replace('_DATE_', data.infoBlock['Премьера']);
+        }
+        var text = data.infoBlock['Автор оригинала'];
+        if (text) {
+            result = result.replace('_AUTHOR_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
+        }
+        text = data.infoBlock['Режиссёр'];
+        if (text) {
+            result = result.replace('_DIRECTOR_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
+        }
+        text = data.infoBlock['Сценарий'];
+        if (text) {
+            result = result.replace('_SCENARY_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
+        }
+        if (data.description) {
+            result = result.replace('_DESCRIPTION_', data.description);
+        }
+        if (data.notes) {
+            result = result.replace('_NOTES_', data.notes);
+        }
+
+        if (data.episodes) {
+            text = '';
+            for (i = 0; i < data.episodes.length; i++) {
+                text += '[b]' + textHelper.padZero(data.episodes[i].number, data.episodes[data.episodes.length - 1].number) +
+                        '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]\n';
+            }
+            result = result.replace('_EPISODES_', text);
+        }
+
+        if (data.crossLinks) {
+            text = '';
+            for (var i = 0; i < data.crossLinks.length; i++) {
+                text += '\n' + data.crossLinks[i];
+            }
+            result = result.replace('_CROSSLINKS_', text);
+        }
+
+        text = '[url=' + document.location.href + ']World-Art[/url]';
+        if (data.infoLinks['ANN']) {
+            text += ', [url=' + data.infoLinks['ANN'] + ']ANN[/url]';
+        }
+        if (data.infoLinks['AniDB']) {
+            text += ', [url=' + data.infoLinks['AniDB'] + ']AniDB[/url]';
+        }
+        if (data.infoLinks['MyAnimeList']) {
+            text += ', [url=' + data.infoLinks['MyAnimeList'] + ']MyAnimeList[/url]';
+        }
+        if (data.infoLinks['Сетка вещания']) {
+            text += ', [url=' + data.infoLinks['Сетка вещания'] + ']Сетка вещания[/url]';
+        }
+        result = result.replace('_INFOLINKS_', text);
+
+        if (quality) {
+            result = result.replace('_QUALITY_', quality);
+            header += ' ' + quality;
+        }
+
+        if (mi) {
+            if (mi.general) {
+                result = result.replace('_DURATION_', count + ' эп. по ' + mi.general.duration.total + ' мин.');
+            }
+
+            var video = '';
+            if (mi.video.length == 1) {
+                video = mi.video[0].string;
+                header += ' ' + mi.video[0].scanType + (mi.video[0].butDepth == 10 ? ' Hi10P' : '');
+            } else {
+                for (i = 0; i < mi.video.length; i++) {
+                    video += '#' + (i + 1) + ': ' + mi.video[i].string + '; ';
+                }
+            }
+            result = result.replace('_VIDEO_', video);
+
+            var audio = '';
+            var sound = '';
+            var block = '';
+            if (mi.audio.length == 1) {
+                audio = mi.audio[0].string;
+                if (mi.audio[0].lang !== 'und') {
+                    sound = mi.audio[0].language;
+                }
+                header += ' ' + (mi.audio[0].lang === 'jap' ? 'raw' : mi.audio[0].lang);
+                block = '[b]Аудио:[/b] ' + audio + ' | [b]Звук:[/b] ' + sound;
+            } else {
+                for (i = 0; i < mi.audio.length; i++) {
+                    audio += '#' + (i + 1) + ': ' + mi.audio[i].string + '; ';
+                    if (mi.audio[i].lang !== 'und') {
+                        sound += '#' + (i + 1) + ': ' + mi.audio[i].language + '; ';
+                    }
+                    var lang = mi.audio[0].lang === 'jap' ? 'raw' : mi.audio[0].lang;
+                    block += '[b]Аудио #' + (i + 1) + ':[/b] ' + mi.audio[i].string +
+                            ' | [b]Звук:[/b] ' + mi.audio[i].language + '\n';
+                    header += (header.indexOf(lang) == -1 ? (i == 0 ? ' ' : '+') + lang : '');
+                }
+            }
+            result = result.replace('_AUDIOLINE_', audio);
+            result = result.replace('_SOUNDLINE_', sound);
+            result = result.replace('_AUDIOBLOCK_', block);
+
+            var subs = '';
+            if (mi.text.length == 1) {
+                if (mi.text[0].lang !== 'und') {
+                    subs = mi.text[0].language;
+                }
+            } else {
+                for (i = 0; i < mi.text.length; i++) {
+                    var language = mi.text[i].language;
+                    if (mi.text[i].lang !== 'und') {
+                        subs += (subs.indexOf(language) == -1 ? '#' + (i + 1) + ': ' + language + '; ' : '');
+                    }
+                }
+            }
+            result = result.replace('_SUBSLANG_', subs);
+            result = result.replace('_MEDIAINFO_', mediaInfo);
+        }
+        result = result.replace('_HEADER_', header);
+
+        console.log('result: \n' + result);
+
+        copyTextToClipboard(result);
     }
 
     function copyTextToClipboard(text) {
@@ -423,165 +420,149 @@ function NNMHelper() {
     }
 
     function process(data) {
-        try {
-            table['Обложка'].input.value = data.poster;
+        console.log(data);
 
-            var names = data.names.split('\n');
-            if (names.length > 0) {
-                var rusName = names[0];
-            }
-            if (names.length > 1) {
-                var hirName = names[1];
-            }
-            if (names.length > 2) {
-                var engName = names[2];
-            }
-            if (names.length > 3) {
-                var japName = '';
-                for (var i = 3; i < names.length; i++) {
-                    japName += names[i] + (i + 1 < names.length ? ' | ' : '');
-                }
-            }
-            table['Название латиницей'].input.value = hirName;
-            table['Русское название'].input.value = rusName;
-            table['Оригинальное название'].input.value = japName;
-            table['Английское название'].input.value = engName;
-            table['Год выпуска'].input.value = data.year;
-            setOption(table['Тип'].input[0], data.infoBlock['Сокращённый тип']);
-            table['Жанр'].input.value = data.infoBlock['Жанр'];
-            var count = data.infoBlock['Количество'];
-            table['Продолжительность'].input.value = (count > 1 ? count + ' эп. по ' : '') + data.infoBlock['Продолжительность'];
-            table['Количество серий'].input.value = (count > 1 ? count + ' из ' + count : '');
-            var text = data.infoBlock['Выпуск'];
-            table['Дата выпуска'].input.value = text ? text : data.infoBlock['Премьера'];
-            if (data.company) {
-                table['Производство'].input.value = 'Студия [url=' + data.company.url + ']' + data.company.name + '[/url]';
-            }
-            text = data.infoBlock['Автор оригинала'];
-            if (text) {
-                table['Автор оригинала'].input.value = '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]';
-            }
-            text = data.infoBlock['Режиссёр'];
-            if (text) {
-                table['Режиссер'].input.value = '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]';
-            }
-            if (data.description) {
-                table['Описание'].input.value = data.description;
-            }
-            if (data.episodes) {
-                text = '';
-                var max = data.episodes[data.episodes.length - 1].number;
-                for (i = 0; i < data.episodes.length; i++) {
-                    text += '[b]' + textHelper.padZero(data.episodes[i].number, max) +
-                            '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]\n';
-                }
-                table['Эпизоды'].input.value = text;
-            }
+        table['Обложка'].input.value = data.poster;
 
-            var notes = '[b]Дополнительные ссылки:[/b]\n';
+        var japName = '';
+        var hirName = '';
+        var rusName = '';
+        var engName = '';
+        var names = data.names.split('\n');
+        if (names.length > 0) {
+            rusName = names[0];
+        }
+        if (names.length > 1) {
+            hirName = names[1];
+        }
+        if (names.length > 2) {
+            engName = names[2];
+        }
+        if (names.length > 3) {
+            for (var i = 3; i < names.length; i++) {
+                japName += names[i] + (i + 1 < names.length ? ' | ' : '');
+            }
+        }
+        table['Название латиницей'].input.value = hirName;
+        table['Русское название'].input.value = rusName;
+        table['Оригинальное название'].input.value = japName;
+        table['Английское название'].input.value = engName;
+        table['Год выпуска'].input.value = data.year;
+        setOption(table['Тип'].input[0], data.infoBlock['Сокращённый тип']);
+        table['Жанр'].input.value = data.infoBlock['Жанр'];
+        var count = data.infoBlock['Количество'];
+        table['Продолжительность'].input.value = (count > 1 ? count + ' эп. по ' : '') + data.infoBlock['Продолжительность'];
+        table['Количество серий'].input.value = (count > 1 ? count + ' из ' + count : '');
+        var text = data.infoBlock['Выпуск'];
+        table['Дата выпуска'].input.value = text ? text : data.infoBlock['Премьера'];
+        if (data.company) {
+            table['Производство'].input.value = 'Студия [url=' + data.company.url + ']' + data.company.name + '[/url]';
+        }
+        text = data.infoBlock['Автор оригинала'];
+        if (text) {
+            table['Автор оригинала'].input.value = '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]';
+        }
+        text = data.infoBlock['Режиссёр'];
+        if (text) {
+            table['Режиссер'].input.value = '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]';
+        }
+        if (data.description) {
+            table['Описание'].input.value = data.description;
+        }
+        if (data.episodes) {
             text = '';
-            if (data.infoLinks['ANN']) {
-                text += (text.length == 0 ? '' : ', ') + '[url=' + data.infoLinks['ANN'] + ']ANN[/url]';
+            for (i = 0; i < data.episodes.length; i++) {
+                text += '[b]' + textHelper.padZero(data.episodes[i].number, data.episodes[data.episodes.length - 1].number) +
+                        '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]\n';
             }
-            if (data.infoLinks['AniDB']) {
-                text += (text.length == 0 ? '' : ', ') + '[url=' + data.infoLinks['AniDB'] + ']AniDB[/url]';
-            }
-            if (data.infoLinks['MyAnimeList']) {
-                text += (text.length == 0 ? '' : ', ') + '[url=' + data.infoLinks['MyAnimeList'] + ']MyAnimeList[/url]';
-            }
-            if (data.infoLinks['Сетка вещания']) {
-                text += (text.length == 0 ? ''
-                                : ', ') + '[url=' + data.infoLinks['Сетка вещания'] + ']Сетка вещания[/url]';
-            }
-            notes += text + '[hr]\n';
-
-            if (data.notes) {
-                notes += '[hide=Справка]' + data.notes + '[/hide]\n';
-            }
-            if (data.crossLinks) {
-                text = '';
-                for (i = 0; i < data.crossLinks.length; i++) {
-                    text += '\n' + data.crossLinks[i];
-                }
-                notes += '[hide=Состав серии]' + text + '[/hide]';
-            }
-            table['Дополнительная информация'].input.value = notes;
-        } catch (e) {
-            console.error(e);
+            table['Эпизоды'].input.value = text;
         }
 
-        function setOption(selectElement, value) {
-            var options = selectElement.options;
-            for (var i = 0; i < options.length; i++) {
-                if (textHelper.innerText(options[i].innerHTML) == value) {
-                    selectElement.selectedIndex = i;
-                    return true;
-                }
-            }
-            return false;
+        var notes = '[b]Дополнительные ссылки:[/b]\n';
+        text = '';
+        if (data.infoLinks['ANN']) {
+            text += (text.length == 0 ? '' : ', ') + '[url=' + data.infoLinks['ANN'] + ']ANN[/url]';
         }
+        if (data.infoLinks['AniDB']) {
+            text += (text.length == 0 ? '' : ', ') + '[url=' + data.infoLinks['AniDB'] + ']AniDB[/url]';
+        }
+        if (data.infoLinks['MyAnimeList']) {
+            text += (text.length == 0 ? '' : ', ') + '[url=' + data.infoLinks['MyAnimeList'] + ']MyAnimeList[/url]';
+        }
+        if (data.infoLinks['Сетка вещания']) {
+            text += (text.length == 0 ? '' : ', ') + '[url=' + data.infoLinks['Сетка вещания'] + ']Сетка вещания[/url]';
+        }
+        notes += text + '[hr]\n';
+
+        if (data.notes) {
+            notes += '[hide=Справка]' + data.notes + '[/hide]\n';
+        }
+        if (data.crossLinks) {
+            text = '';
+            for (i = 0; i < data.crossLinks.length; i++) {
+                text += '\n' + data.crossLinks[i];
+            }
+            notes += '[hide=Состав серии]' + text + '[/hide]';
+        }
+        table['Дополнительная информация'].input.value = notes;
     }
 
     function parseMI() {
-        try {
-            var mi = table['Mediainfo'].input.value;
-            if (mi && mi.length > 0) {
-                mi = miProcessor.parseMediaInfo(mi);
-                console.log(mi);
+        var mi = table['Mediainfo'].input.value;
+        if (mi && mi.length > 0) {
+            mi = miProcessor.parseMediaInfo(mi);
+            console.log(mi);
 
-                var video = '';
-                var videoSpec = '';
-                if (mi.video.length == 1) {
-                    video = mi.video[0].string;
-                    videoSpec += mi.video[0].scanType + (mi.video[0].bitDepth == 10 ? ' Hi10P' : '');
-                } else {
-                    for (i = 0; i < mi.video.length; i++) {
-                        video += '#' + (i + 1) + ': ' + mi.video[i].string + '; ';
-                    }
-                }
-                table['Видео'].input.value = video;
-                table['Характеристики видео(для заголовка)'].input.value = videoSpec;
-
-                var audio = '';
-                var audioLang = langObj();
-                if (mi.audio.length == 1) {
-                    audio = mi.audio[0].string;
-                    audioLang.inc(mi.audio[0].lang);
-                } else {
-                    for (i = 0; i < mi.audio.length; i++) {
-                        console.log(mi.audio[i].lang + ' : ' + audioLang[mi.audio[i].lang]);
-                        audio += '#' + (i + 1) + ': ' + mi.audio[i].string + ' [' + mi.audio[i].lang + ']; ';
-                        audioLang.inc(mi.audio[i].lang);
-                    }
-                }
-                var idx = 5;
-                if (audioLang.jap > 0 && audioLang.rus > 0) {
-                    idx = 3;
-                } else if (audioLang.jap > 0 && audioLang.eng > 0) {
-                    idx = 4;
-                } else if (audioLang.jap > 0) {
-                    idx = 1;
-                } else if (audioLang.rus > 0) {
-                    idx = 2;
-                }
-                table['Аудио'].input.value = audio;
-                table['Звук'].input[0].selectedIndex = idx;
-                table['Звук (для заголовка)'].input[0].selectedIndex = idx;
-
-                var subsLang = langObj();
-                for (i = 0; i < mi.text.length; i++) {
-                    console.log(mi.text[i].lang + ' : ' + subsLang[mi.text[i].lang]);
-                    subsLang.inc(mi.text[i].lang);
-                }
-                if (subsLang.rus > 0) {
-                    table['Язык субтитров'].input[0].selectedIndex = 3;
-                }
-                if (subsLang.eng > 0) {
-                    table['Язык субтитров'].input[1].selectedIndex = 1;
+            var video = '';
+            var videoSpec = '';
+            if (mi.video.length == 1) {
+                video = mi.video[0].string;
+                videoSpec += mi.video[0].scanType + (mi.video[0].bitDepth == 10 ? ' Hi10P' : '');
+            } else {
+                for (i = 0; i < mi.video.length; i++) {
+                    video += '#' + (i + 1) + ': ' + mi.video[i].string + '; ';
                 }
             }
-        } catch (e) {
-            console.error(e);
+            table['Видео'].input.value = video;
+            table['Характеристики видео(для заголовка)'].input.value = videoSpec;
+
+            var audio = '';
+            var audioLang = langObj();
+            if (mi.audio.length == 1) {
+                audio = mi.audio[0].string;
+                audioLang.inc(mi.audio[0].lang);
+            } else {
+                for (i = 0; i < mi.audio.length; i++) {
+                    console.log(mi.audio[i].lang + ' : ' + audioLang[mi.audio[i].lang]);
+                    audio += '#' + (i + 1) + ': ' + mi.audio[i].string + ' [' + mi.audio[i].lang + ']; ';
+                    audioLang.inc(mi.audio[i].lang);
+                }
+            }
+            var idx = 5;
+            if (audioLang.jap > 0 && audioLang.rus > 0) {
+                idx = 3;
+            } else if (audioLang.jap > 0 && audioLang.eng > 0) {
+                idx = 4;
+            } else if (audioLang.jap > 0) {
+                idx = 1;
+            } else if (audioLang.rus > 0) {
+                idx = 2;
+            }
+            table['Аудио'].input.value = audio;
+            table['Звук'].input[0].selectedIndex = idx;
+            table['Звук (для заголовка)'].input[0].selectedIndex = idx;
+
+            var subsLang = langObj();
+            for (i = 0; i < mi.text.length; i++) {
+                console.log(mi.text[i].lang + ' : ' + subsLang[mi.text[i].lang]);
+                subsLang.inc(mi.text[i].lang);
+            }
+            if (subsLang.rus > 0) {
+                table['Язык субтитров'].input[0].selectedIndex = 3;
+            }
+            if (subsLang.eng > 0) {
+                table['Язык субтитров'].input[1].selectedIndex = 1;
+            }
         }
 
         function langObj() {
@@ -595,6 +576,17 @@ function NNMHelper() {
                 }
             }
         }
+    }
+
+    function setOption(selectElement, value) {
+        var options = selectElement.options;
+        for (var i = 0; i < options.length; i++) {
+            if (textHelper.innerText(options[i].innerHTML) == value) {
+                selectElement.selectedIndex = i;
+                return true;
+            }
+        }
+        return false;
     }
 
     function createIFrame(url) {
@@ -631,31 +623,37 @@ function WAProcessor() {
 
             return hidden;
         } catch (e) {
-            console.error('Не удалось загрузить страницу: ' + url, e.message);
+            console.warn('Не удалось загрузить страницу: ' + url, e.message);
+            return null;
         }
     }
 
     function loadData(page) {
-        try {
-            var blocks = page.querySelectorAll('td[align="left"]');
-            var names = getNames(blocks[1]);
-            var data = {
-                'year': names[1],
-                'names': names[0],
-                'stringNames': getStringNames(names[0]),
-                'poster': getPoster(blocks[0]),
-                'company': getCompany(blocks[0]),
-                'infoBlock': getInfoBlock(blocks[1]),
-                'infoLinks': getInfoLinks(page),
-                'description': getDescription(page),
-                'notes': getNotes(page),
-                'episodes': getEpisodes(page),
-                'crossLinks': getCrosslinks(page)
-            };
-            console.log(data);
-            return data;
-        } catch (e) {
-            console.error(e);
+        var blocks = page.querySelectorAll('td[align="left"]');
+
+        var names = getNames(blocks[1]);
+        var stringNames = getStringNames(names[0]);
+        var poster = getPoster(blocks[0]);
+        var company = getCompany(blocks[0]);
+        var infoBlock = getInfoBlock(blocks[1]);
+        var infoLinks = getInfoLinks(page);
+        var description = getDescription(page);
+        var notes = getNotes(page);
+        var episodes = getEpisodes(page);
+        var crossLinks = getCrosslinks(page);
+
+        return {
+            'year': names[1],
+            'names': names[0],
+            'stringNames': stringNames,
+            'poster': poster,
+            'company': company,
+            'infoBlock': infoBlock,
+            'infoLinks': infoLinks,
+            'description': description,
+            'notes': notes,
+            'episodes': episodes,
+            'crossLinks': crossLinks
         }
     }
 
@@ -755,8 +753,7 @@ function WAProcessor() {
     }
 
     function getDescription(page) {
-        return getTextFromNearTable(page.querySelectorAll('font[size="2"][color="#99000"]'), 'Краткое содержание:').
-                replace('при копировании текста активная ссылка на www.world-art.ru обязательна, подробнее о перепечатке текстов', '');
+        return getTextFromNearTable(page.querySelectorAll('font[size="2"][color="#99000"]'), 'Краткое содержание:');
     }
 
     function getNotes(page) {
@@ -837,44 +834,37 @@ function MIProcessor() {
             return;
         }
 
+        var mi = mediaInfo.split('\n');
+
+        var parts = [];
+        var start = 0;
+        var end = 0;
+        do {
+            end = mi.indexOf("", start);
+            var part = mi.slice(start, (end == -1 ? mi.length : end));
+            start = end + 1;
+            var infoPart = {'name': part[0]};
+            for (var i = 1; i < part.length; i++) {
+                var ss = part[i].split(' : ');
+                infoPart[ss[0].trim()] = ss[1].trim();
+            }
+            parts.push(infoPart);
+        } while (end > -1);
+
         var general;
         var video = [];
         var audio = [];
         var text = [];
-
-        try {
-            var mi = mediaInfo.split('\n');
-
-            var parts = [];
-            var start = 0;
-            var end = 0;
-            do {
-                end = mi.indexOf("", start);
-                var part = mi.slice(start, (end == -1 ? mi.length : end));
-                start = end + 1;
-                var infoPart = {'name': part[0]};
-                for (var i = 1; i < part.length; i++) {
-                    var ss = part[i].split(' : ');
-                    infoPart[ss[0].trim()] = ss[1].trim();
-                }
-                parts.push(infoPart);
-            } while (end > -1);
-
-            for (i = 0; i < parts.length; i++) {
-                if (parts[i].name) {
-                    if (parts[i].name == 'General' || parts[i].name == 'Общее') {
-                        general = parseGeneral(parts[i]);
-                    } else if (parts[i].name.indexOf('Video') == 0 || parts[i].name.indexOf('Видео') == 0) {
-                        video.push(parseVideo(parts[i]));
-                    } else if (parts[i].name.indexOf('Audio') == 0 || parts[i].name.indexOf('Аудио') == 0) {
-                        audio.push(parseAudio(parts[i]));
-                    } else if (parts[i].name.indexOf('Text') == 0 || parts[i].name.indexOf('Текст') == 0) {
-                        text.push(parseText(parts[i]));
-                    }
-                }
+        for (i = 0; i < parts.length; i++) {
+            if (parts[i].name == 'General' || parts[i].name == 'Общее') {
+                general = parseGeneral(parts[i]);
+            } else if (parts[i].name.indexOf('Video') == 0 || parts[i].name.indexOf('Видео') == 0) {
+                video.push(parseVideo(parts[i]));
+            } else if (parts[i].name.indexOf('Audio') == 0 || parts[i].name.indexOf('Аудио') == 0) {
+                audio.push(parseAudio(parts[i]));
+            } else if (parts[i].name.indexOf('Text') == 0 || parts[i].name.indexOf('Текст') == 0) {
+                text.push(parseText(parts[i]));
             }
-        } catch (e) {
-            console.error(e);
         }
 
         return {general: general, video: video, audio: audio, text: text};
@@ -945,8 +935,8 @@ function MIProcessor() {
             return 'kHz';
         } else if (units.indexOf('channel') == 0 || units.indexOf('канал') == 0) {
             return 'ch';
-        //} else if (units.indexOf('') || units.indexOf('')) {
-        //    return '';
+        } else if (units.indexOf('') || units.indexOf('')) {
+            return '';
         }
     }
 
