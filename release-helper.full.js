@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.1
+// @version       1.0.0.2
 // @author        ElSwanko
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -1122,26 +1122,15 @@ function IFCommunicator() {
     }
 }
 
-var isLoaded = false;
-function loadingHelper() {
-    if (!isLoaded) {
-        isLoaded = true;
-        window.removeEventListener("load", loadingHelper, false);
-        window.removeEventListener("DOMContentLoaded", loadingHelper, false);
-        var ifCommunicator = IFCommunicator();
-        var script = document.createElement('script');
-        var textContent = TextHelper.toString() + MIProcessor.toString();
-        if (window.location.href.indexOf('nnmclub') > -1) {
-            textContent += NNMHelper.toString() + ' var nnmHelper = NNMHelper(); nnmHelper.drawLinks(); ';
-            window.addEventListener("message", ifCommunicator.nnmListener, false);
-        } else {
-            textContent += WAHelper.toString() + WAProcessor.toString() + ' var waHelper = WAHelper(); waHelper.drawLinks(); ';
-            window.addEventListener("message", ifCommunicator.waListener, false);
-        }
-        script.textContent = textContent;
-        document.body.appendChild(script);
-    }
+var ifCommunicator = IFCommunicator();
+var script = document.createElement('script');
+var textContent = TextHelper.toString() + MIProcessor.toString();
+if (window.location.href.indexOf('nnmclub') > -1) {
+    textContent += NNMHelper.toString() + ' var nnmHelper = NNMHelper(); nnmHelper.drawLinks(); ';
+    window.addEventListener("message", ifCommunicator.nnmListener, false);
+} else {
+    textContent += WAHelper.toString() + WAProcessor.toString() + ' var waHelper = WAHelper(); waHelper.drawLinks(); ';
+    window.addEventListener("message", ifCommunicator.waListener, false);
 }
-
-window.addEventListener('DOMContentLoaded', loadingHelper, false);
-window.addEventListener('load', loadingHelper, false);
+script.textContent = textContent;
+document.body.appendChild(script);
