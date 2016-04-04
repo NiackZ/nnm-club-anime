@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.5
+// @version       1.0.0.6
 // @author        ElSwanko
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -194,20 +194,34 @@ function WAHelper() {
         var mi = miProcessor.parseMediaInfo(mediaInfo);
 
         var result = (localStorage.template || defaultTemplate).replace('_POSTER_', data.poster);
-        result = result.replace('_STRINGNAMES_', data.stringNames);
-        result = result.replace('_NAMES_', data.names);
+        result = result.replace('_STRINGNAMES_', data.names.str);
+
+        var text = '';
+        if (data.names.jap) {
+            text += data.names.jap.replace(' | ', '\n') + '\n';
+        }
+        if (data.names.rus) {
+            text += data.names.rus.replace(' | ', '\n') + '\n';
+        }
+        if (data.names.eng) {
+            text += data.names.eng.replace(' | ', '\n') + '\n';
+        }
+        result = result.replace('_NAMES_', text);
 
         if (data.company) {
             result = result.replace('_COMPANY_', '[url=' + data.company.url + ']' + data.company.name + '[/url]');
         }
 
+        var sp = data.infoBlock['SP'];
         var count = data.infoBlock['Количество'];
         var shortType = data.infoBlock['Сокращённый тип'];
-        var header = '[' + data.year + ', ' + shortType + (count > 1 ? ', ' + count : '') + ']';
+        var header = '[' + data.names.year + ', ' + shortType +
+                (count > 1 ? ', ' + count + ' эп.' + (sp > 0 ? ' + ' + sp + ' SP' : '') : '') + ']';
 
         result = result.replace('_GENRE_', data.infoBlock['Жанр']);
         result = result.replace('_TYPE_', data.infoBlock['Тип']);
-        result = result.replace('_DURATION_', count + ' эп. по ' + data.infoBlock['Продолжительность']);
+        result = result.replace('_DURATION_', count + ' эп. по ' + data.infoBlock['Продолжительность'] +
+                (sp > 0 ? ' + ' + sp + ' SP' : ''));
         result = result.replace('_COUNT_', count + ' из ' + count);
         if (data.infoBlock['Выпуск']) {
             result = result.replace('_DATE_', data.infoBlock['Выпуск']);
@@ -215,7 +229,7 @@ function WAHelper() {
         if (data.infoBlock['Премьера']) {
             result = result.replace('_DATE_', data.infoBlock['Премьера']);
         }
-        var text = data.infoBlock['Автор оригинала'];
+        text = data.infoBlock['Автор оригинала'];
         if (text) {
             result = result.replace('_AUTHOR_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
         }
@@ -273,7 +287,8 @@ function WAHelper() {
 
         if (mi) {
             if (mi.general) {
-                result = result.replace('_DURATION_', count + ' эп. по ' + mi.general.duration.total + ' мин.');
+                result = result.replace('_DURATION_', count + ' эп. по ' + mi.general.duration.total + ' мин.' +
+                        (sp > 0 ? ' + ' + sp + ' SP' : ''));
             }
 
             var video = '';
@@ -399,62 +414,106 @@ function NNMHelper() {
     console.log(table);
 
     var waFrame;
+    var frameReady = false;
+    var retryCount = 0;
+    var timeout = 0;
+    var span;
+    var btn;
 
     function drawLinks() {
         var l = table['Ссылки'].label;
         l.innerHTML = l.innerHTML + '<br>' +
-                '<input type="button" style="width: 165px;" value="Заполнить описание" onclick="nnmHelper.getData();">';
+                '<input type="button" id="waBtn" style="width: 165px;" value="Заполнить описание" onclick="nnmHelper.getData();">' +
+                '<br><span id="waLogSpan"></span>';
         l = table['Mediainfo'].label;
         l.innerHTML = l.innerHTML + '<br>' +
                 '<input type="button" style="width: 165px;" value="Заполнить тех.данные" onclick="nnmHelper.parseMI();">';
+        span = document.getElementById('waLogSpan');
+        btn = document.getElementById('waBtn');
+    }
+
+    function onFrameReady() {
+        clearTimeout(timeout);
+        frameReady = true;
+        retryCount = 0;
+        getData();
+    }
+
+    function logWARequest(text, blockBtn) {
+        span.innerHTML = text;
+        btn.disabled = blockBtn;
     }
 
     function getData() {
         var url = table['Ссылки'].input.value;
-        if (url.indexOf('http') == 0) {
+        if (url.indexOf('world-art') == -1) {
+            logWARequest('Укажите ссылку на WA!', false);
+            return;
+        }
+        if (waFrame && waFrame.src != url) {
+            document.body.removeChild(waFrame);
+            waFrame = null;
+            frameReady = false;
+            retryCount = 0;
+            setTimeout(clearData, 100);
+        }
+        logWARequest('Ожидаю ответа...', true);
+        if (waFrame && frameReady) {
+            waFrame.contentWindow.postMessage('load', '*');
+        } else {
             if (!waFrame) {
                 waFrame = createIFrame(url);
             }
-            setTimeout(function () {
-                waFrame.contentWindow.postMessage('load', '*');
-            }, 1000);
+            if (!frameReady) {
+                if (retryCount < 10) {
+                    retryCount += 1;
+                    console.log('Waiting for WA...');
+                    timeout = setTimeout(getData, 1000);
+                } else {
+                    logWARequest('Нет ответа от WA', false);
+                    retryCount = 0;
+                }
+            }
         }
+    }
+
+    function clearData() {
+        table['Обложка'].input.value = '';
+        table['Название латиницей'].input.value = '';
+        table['Русское название'].input.value = '';
+        table['Оригинальное название'].input.value = '';
+        table['Английское название'].input.value = '';
+        table['Год выпуска'].input.value = '';
+        table['Тип'].input[0].selectedIndex = 0;
+        table['Жанр'].input.value = '';
+        table['Продолжительность'].input.value = '';
+        table['Количество серий'].input.value = '';
+        table['Дата выпуска'].input.value = '';
+        table['Производство'].input.value = '';
+        table['Автор оригинала'].input.value = '';
+        table['Режиссер'].input.value = '';
+        table['Описание'].input.value = '';
+        table['Эпизоды'].input.value = '';
+        table['Дополнительная информация'].input.value = '';
     }
 
     function process(data) {
         console.log(data);
+        logWARequest('Ответ получен', false);
 
         table['Обложка'].input.value = data.poster;
-
-        var japName = '';
-        var hirName = '';
-        var rusName = '';
-        var engName = '';
-        var names = data.names.split('\n');
-        if (names.length > 0) {
-            rusName = names[0];
-        }
-        if (names.length > 1) {
-            hirName = names[1];
-        }
-        if (names.length > 2) {
-            engName = names[2];
-        }
-        if (names.length > 3) {
-            for (var i = 3; i < names.length; i++) {
-                japName += names[i] + (i + 1 < names.length ? ' | ' : '');
-            }
-        }
-        table['Название латиницей'].input.value = hirName;
-        table['Русское название'].input.value = rusName;
-        table['Оригинальное название'].input.value = japName;
-        table['Английское название'].input.value = engName;
-        table['Год выпуска'].input.value = data.year;
+        table['Название латиницей'].input.value = data.names.eng ? data.names.eng : '';
+        table['Русское название'].input.value = data.names.rus ? data.names.rus : '';
+        table['Оригинальное название'].input.value = data.names.jap ? data.names.jap : '';
+        table['Год выпуска'].input.value = data.names.year;
         setOption(table['Тип'].input[0], data.infoBlock['Сокращённый тип']);
         table['Жанр'].input.value = data.infoBlock['Жанр'];
         var count = data.infoBlock['Количество'];
-        table['Продолжительность'].input.value = (count > 1 ? count + ' эп. по ' : '') + data.infoBlock['Продолжительность'];
-        table['Количество серий'].input.value = (count > 1 ? count + ' из ' + count : '');
+        var sp = data.infoBlock['SP'];
+        table['Продолжительность'].input.value = (count > 1 ? count + ' эп. по ' : '') +
+                data.infoBlock['Продолжительность'] + (sp > 0 ? ' + ' + sp + ' SP' : '');
+        table['Количество серий'].input.value = (count > 1 ? count + ' из ' + count : '') +
+                (sp > 0 ? ' + ' + sp + ' SP из ' + sp : '');
         var text = data.infoBlock['Выпуск'];
         table['Дата выпуска'].input.value = text ? text : data.infoBlock['Премьера'];
         if (data.company) {
@@ -600,6 +659,7 @@ function NNMHelper() {
     }
 
     return {
+        onFrameReady: onFrameReady,
         drawLinks: drawLinks,
         getData: getData,
         process: process,
@@ -634,7 +694,6 @@ function WAProcessor() {
         var blocks = page.querySelectorAll('td[align="left"]');
 
         var names = getNames(blocks[1]);
-        var stringNames = getStringNames(names[0]);
         var poster = getPoster(blocks[0]);
         var company = getCompany(blocks[0]);
         var infoBlock = getInfoBlock(blocks[1]);
@@ -645,9 +704,7 @@ function WAProcessor() {
         var crossLinks = getCrosslinks(page);
 
         return {
-            'year': names[1],
-            'names': names[0],
-            'stringNames': stringNames,
+            'names': names,
             'poster': poster,
             'company': company,
             'infoBlock': infoBlock,
@@ -663,20 +720,38 @@ function WAProcessor() {
         var ee = block.querySelectorAll('font[size="3"]');
         var names = (ee && ee.length > 0) ? textHelper.innerText(ee[0].parentNode.innerHTML) : '_NAMES_';
         var year = (ee && ee.length > 1) ? textHelper.innerText(ee[1].innerHTML) : 'YEAR';
-        names = names.replace(' [' + year + ']', '');
-        return [names, year];
-    }
+        names = names.replace(/\[.+\]/g, '');
 
-    function getStringNames(names) {
-        if (!names || names === '_NAMES_') {
-            return names;
-        }
-        var result = "";
+        var result = {jap: [], rus: [], eng: [], str: '', year: year};
         var nn = names.split('\n');
         for (var i = 0; i < nn.length; i++) {
-            result += nn[i] + (i == nn.length - 1 ? '' : ' | ');
+            var name = nn[i].trim();
+            var lang = textHelper.testLang(name);
+            if (lang.eng) {
+                result.eng.push(name);
+            } else if (lang.rus) {
+                result.rus.push(name);
+            } else {
+                result.jap.push(name);
+            }
         }
+        toString(result, 'jap');
+        toString(result, 'rus');
+        toString(result, 'eng');
         return result;
+
+        function toString(result, lang) {
+            if (result[lang].length > 0) {
+                var str = '';
+                for (var i = 0; i < result[lang].length; i++) {
+                    str += ' | ' + result[lang][i];
+                }
+                result[lang] = str.substring(3);
+                result['str'] += (result['str'].length > 0 ? ' | ' : '') + result[lang];
+            } else {
+                result[lang] = null;
+            }
+        }
     }
 
     function getPoster(block) {
@@ -711,6 +786,7 @@ function WAProcessor() {
             result['Сокращённый тип'] = type.shortType;
             result['Продолжительность'] = type.duration;
             result['Количество'] = type.count;
+            result['SP'] = type.sp;
         }
         var aa = block.querySelectorAll('a.estimation');
         var links = {};
@@ -726,7 +802,8 @@ function WAProcessor() {
         var shortType;
         var duration;
         var count = 1;
-        var tt = t.split(/[(),]/);
+        var sp = 0;
+        var tt = t.split(/[(),]/);// разбираем строку вида - ТВ (24 эп. + 2 спэшла), 25 мин. /  ТВ (>24 эп.), 25 мин.
         type = tt[0].trim();
         if (tt.length > 1) {
             var last = tt[tt.length - 1];
@@ -734,7 +811,13 @@ function WAProcessor() {
                 duration = last.trim();
             }
             if (tt[1].indexOf('эп') > 0) {
-                tt = tt[1].split(/[> ]/);
+                var s = tt[1];
+                if (s.indexOf('+') > 0) {
+                    tt = s.split('+');
+                    s = tt[0].trim();
+                    sp = tt[1].trim().split(' ')[0];
+                }
+                tt = s.split(/[> ]/);
                 if (tt.length == 2) {
                     count = tt[0];
                 } else if (tt.length == 3) {
@@ -746,19 +829,19 @@ function WAProcessor() {
             shortType = 'TV';
         } else if (type === 'OVA' || type === 'OAV' || type === 'OAD') {
             shortType = 'OVA';
-        } else if (type.indexOf('фильм') > -1) {
+        } else if (type.indexOf('фильм') > -1 || type.indexOf('Фильм') > -1) {
             shortType = 'Movie';
         } else {
             shortType = 'Другое';
         }
-        return {'type': type, 'shortType': shortType, 'duration': duration, 'count': count};
+        return {'type': type, 'shortType': shortType, 'duration': duration, 'count': count, 'sp': sp};
     }
 
     function getDescription(page) {
-		var text = getTextFromNearTable(page.querySelectorAll('font[size="2"][color="#99000"]'), 'Краткое содержание:');
-		if (text) {
-			return text.replace('при копировании текста активная ссылка на www.world-art.ru обязательна, подробнее о перепечатке текстов\n', '');
-		}
+        var text = getTextFromNearTable(page.querySelectorAll('font[size="2"][color="#99000"]'), 'Краткое содержание:');
+        if (text) {
+            return text.replace('при копировании текста активная ссылка на www.world-art.ru обязательна, подробнее о перепечатке текстов\n', '');
+        }
     }
 
     function getNotes(page) {
@@ -1078,7 +1161,19 @@ function MIProcessor() {
 function TextHelper() {
 
     function innerText(html) {
-        return html.replace(/<br>/g, '\n').replace(/<(?:.|\n)*?>/gm, '').replace(/&nbsp;/g, ' ');
+        return html.replace(/<br>/g, '\n').replace(/<(?:.|\n)*?>/gm, '').replace(/&nbsp;/g, ' ').replace(/[ ]+/g, ' ');
+    }
+
+    function testLang(text) {
+        var result = {eng: false, rus: false, jap: false};
+        if (text.replace(/[a-zA-Z0-9 _=!@#$%^&*\-\(\)\[\]\{\}|\\:;"\'\/?<>.,]/g, '').length == 0) {
+            result.eng = true;
+        } else if (text.replace(/[а-яА-Яa-zA-Z0-9 _=!@#$%^&*\-\(\)\[\]\{\}|\\:;"\'\/?<>.,]/g, '').length == 0) {
+            result.rus = true;
+        } else {
+            result.jap = true;
+        }
+        return result;
     }
 
     function padZero(number, count) {
@@ -1093,41 +1188,36 @@ function TextHelper() {
 
     return {
         innerText: innerText,
+        testLang: testLang,
         padZero: padZero
     }
 }
 
-function IFCommunicator() {
-
-    function WAListener(event) {
+var script = document.createElement('script');
+var textContent = TextHelper.toString() + MIProcessor.toString();
+if (window.location.href.indexOf('world-art') > -1) {
+    textContent += WAHelper.toString() + WAProcessor.toString() + ' var waHelper = WAHelper(); waHelper.drawLinks(); ';
+    window.addEventListener('message', function (event) {
         if (event.data && event.data == 'load') {
             var pageData = WAProcessor().loadData(document);
             window.parent.postMessage(JSON.stringify(pageData), '*');
         }
-    }
-
-    function NNMListener(event) {
-        if (event.data) {
+    }, false);
+    window.addEventListener('load', function () {
+        if (window.parent != window) {
+            window.parent.postMessage('ready', '*');
+        }
+    }, false);
+} else {
+    textContent += NNMHelper.toString() + ' var nnmHelper = NNMHelper(); nnmHelper.drawLinks(); ';
+    window.addEventListener('message', function (event) {
+        if (event.data && event.data == 'ready') {
+            nnmHelper.onFrameReady();
+        } else if (event.data) {
             var waData = JSON.parse(event.data);
             nnmHelper.process(waData);
         }
-    }
-
-    return {
-        waListener: WAListener,
-        nnmListener: NNMListener
-    }
-}
-
-var ifCommunicator = IFCommunicator();
-var script = document.createElement('script');
-var textContent = TextHelper.toString() + MIProcessor.toString();
-if (window.location.href.indexOf('nnmclub') > -1) {
-    textContent += NNMHelper.toString() + ' var nnmHelper = NNMHelper(); nnmHelper.drawLinks(); ';
-    window.addEventListener("message", ifCommunicator.nnmListener, false);
-} else {
-    textContent += WAHelper.toString() + WAProcessor.toString() + ' var waHelper = WAHelper(); waHelper.drawLinks(); ';
-    window.addEventListener("message", ifCommunicator.waListener, false);
+    }, false);
 }
 script.textContent = textContent;
 document.body.appendChild(script);
