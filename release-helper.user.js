@@ -570,7 +570,8 @@ function NNMHelper() {
         if (data.infoLinks['Сетка вещания']) {
             text += (text.length == 0 ? '' : ', ') + '[url=' + data.infoLinks['Сетка вещания'] + ']Сетка вещания[/url]';
         }
-        notes += text + '[hr]\n';
+        notes += text + '[hr]\n[color=red]После обработки введённой информации визардом, вынести ссылки из-под спойлера ' +
+                'и разместить их после ссылки на World-Art.[/color]\n[hr]\n';
 
         if (data.notes) {
             notes += '[hide=Справка]' + data.notes + '[/hide]\n';
