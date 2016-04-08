@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.8
+// @version       1.0.0.9
 // @author        ElSwanko
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -51,16 +51,15 @@ function WAHelper() {
             '[hr]\n' +
             '[b]Качество видео:[/b] _QUALITY_\n' +
             '[b]Видео:[/b] _VIDEO_\n' +
-            //'[b]Аудио:[/b] _AUDIOLINE_ | [b]Звук:[/b] _SOUNDLINE_\n' +
-            '_AUDIOBLOCK_\n' +
+            '_AUDIO_\n' +
             '[b]Тип субтитров:[/b] Отключаемые (softsub)\n' +
-            '[b]Язык субтитров:[/b] _SUBSLANG_\n' +
+            '[b]Язык субтитров:[/b] _SUBSLINE_\n' +
             '[b]Перевод:[/b] TRANSLATION\n' +
             '[brc][align=center][b]Скриншоты:[/b]\n' +
-            '_SCREENSHOTS_\n' +
+            'SCREENSHOTS\n' +
             '[/align]\n' +
             '[hide=Эпизоды]\n' +
-            '_EPISODES_\n' +
+            '_EPISODESFMT_\n' +
             '[/hide]\n' +
             '[hide=Справка]\n' +
             '_NOTES_\n' +
@@ -92,6 +91,7 @@ function WAHelper() {
      '[hr]\n' +
      '[b]Описание:[/b]\n' +
      '_DESCRIPTION_\n' +
+     '_NOTES_\n' +
      '[/hide]\n';
      */
 
@@ -114,35 +114,36 @@ function WAHelper() {
 
     function openTemplateDiv() {
         openDiv('<strong>Обрабатываемые значения:</strong><br>' +
-                '<b>_NAMES_</b> — названия аниме, выводятся по одному названию на строку;<br>' +
+                '<b>_NAMES_</b> — названия аниме, выводятся по одному названию на строку; ' +
                 '<b>_STRINGNAMES_</b> — названия аниме, выводятся все в одну строку;<br>' +
-                '<b>_POSTER_</b> — постер;<br>' +
-                '<b>_GENRE_</b> — жанры;<br>' +
-                '<b>_TYPE_</b> — тип;<br>' +
-                '<b>_DURATION_</b> — длительность;<br>' +
-                '<b>_COUNT_</b> — количество эпизодов;<br>' +
-                '<b>_DATE_</b> — дата выпуска/премьеры;<br>' +
-                '<b>_COMPANY_</b> — студия;<br>' +
-                '<b>_AUTHOR_</b> — автор оригинала;<br>' +
-                '<b>_DIRECTOR_</b> — режиссер;<br>' +
-                '<b>_SCENARY_</b> — сценарий;<br>' +
-                '<b>_INFOLINKS_</b> — информационные ссылки одним блоком и по отдельности: _WA_, _ANN_, _ANIDB_, _MAL_, _AIR_;<br>' +
-                '<b>_DESCRIPTION_</b> — описание;<br>' +
-                '<b>_EPISODES_</b> — список эпизодов;<br>' +
-                '<b>_NOTES_</b> — справка;<br>' +
-                '<b>_CROSSLINKS_</b> — состав серии, список связанных произведений;<br>>' +
+                '<b>_POSTER_</b> — постер; <b>_GENRE_</b> — жанры; <b>_TYPE_</b> — тип;<br>' +
+                '<b>_DURATION_</b> — длительность; <b>_COUNT_</b> — количество эпизодов; <b>_DATE_</b> — дата выпуска/премьеры;<br>' +
+                '<b>_COMPANY_</b> — готовый BB-код ссылки на студию; ' +
+                '<b>_COMPANYNAME_</b>, <b>_COMPANYURL_</b> — название студии и ссылка по отдельности;<br>' +
+                '<b>_AUTHOR_</b> — готовый BB-код ссылки на автора оригинала; ' +
+                '<b>_AUTHORNAME_</b>, <b>_AUTHORURL_</b> — автор оригинала и ссылка по отдельности;<br>' +
+                '<b>_SCENARY_</b> — готовый BB-код ссылки на автора сценария; ' +
+                '<b>_SCENARYNAME_</b>, <b>_SCENARYURL_</b> — автор сценария и ссылка по отдельности;<br>' +
+                '<b>_DIRECTOR_</b> — готовый BB-код ссылки на режиссёра; ' +
+                '<b>_DIRECTORNAME_</b>, <b>_DIRECTORURL_</b> — режиссёр и ссылка по отдельности;<br>' +
+                '<b>_INFOLINKS_</b> — готовый BB-код информационных ссылок одним блоком;<br>' +
+                '<b>_WAURL_</b>, <b>_ANNURL_</b>, <b>_ANIDBURL_</b>, <b>_MALURL_</b>, ' +
+                '<b>_AIRURL_</b> — информационные ссылки по отдельности;<br>' +
+                '<b>_DESCRIPTION_</b> — описание; <b>_NOTES_</b> — справка;<br>' +
+                '<b>_EPISODES_</b> — неформатированный список эпизодов; ' +
+                '<b>_EPISODESFMT_</b> — BB-код списка эпизодов с небольшим оформлением;<br>' +
+                '<b>_CROSSLINKS_</b> — состав серии, список связанных произведений; ' +
+                '<b>_CROSSLINKSTBL_</b> — BB-кол состава серии с оформлением таблицей;<br>' +
                 '<b>_QUALITY_</b> — качество видео (если задано соответствующее значение);<br><br>' +
                 'Если задан отчёт <b>MediaInfo</b>, заполняются следующие поля:<br>' +
-                '<b>_DURATION_</b> — продолжительность видеофайла (если длительность не указана на странице ВА);<br>' +
+                '<b>_DURATION_</b> — продолжительность видеофайла (если длительность не указана на странице ВА); ' +
                 '<b>_MEDIAINFO_</b> — отчёт MediaInfo;<br>' +
-                '<b>_VIDEO_</b> — параметры видео одной строкой;<br>' +
-                '<b>_AUDIOLINE_</b> — параметры аудио одной строкой;<br>' +
-                '<b>_SOUNDLINE_</b> — язык звуковых дорожек одной строкой;<br>' +
-                '<b>_AUDIOBLOCK_</b> — готовый BB-код для параметров аудио и языка звуковой дорожки, по одной дорожке на строку;<br>' +
-                '<b>_SUBSLANG_</b> — язык субтитров одной строкой;<br>' +
+                '<b>_AUDIO_</b> — готовый BB-код для параметров аудио и языка звуковой дорожки, по одной дорожке на строку;<br>' +
+                '<b>_VIDEO_</b> — параметры видео одной строкой; <b>_AUDIOLINE_</b> — параметры аудио одной строкой;<br>' +
+                '<b>_SOUNDLINE_</b> — язык звуковых дорожек одной строкой; <b>_SUBSLINE_</b> — язык субтитров одной строкой;<br>' +
                 '<b>_HEADER_</b> — заголовок релиза с краткой технической информацией.<br><br>' +
                 '<strong>Шаблон:</strong><br>' +
-                '<textarea rows="15" cols="90" id="templateText">' +
+                '<textarea rows="15" cols="95" id="templateText">' +
                 (localStorage.template ? localStorage.template : defaultTemplate) +
                 '</textarea><br>' +
                 '<input type="button" value="Сохранить" onclick="waHelper.setTemplate();">');
@@ -156,7 +157,7 @@ function WAHelper() {
 
     function openMediaInfoDiv() {
         openDiv('<strong>Отчёт Media Info:</strong><br>' +
-                '<textarea rows="30" cols="90" id="mediaInfo">' + mediaInfo + '</textarea><br>' +
+                '<textarea rows="30" cols="95" id="mediaInfo">' + mediaInfo + '</textarea><br>' +
                 '<b>Качество видео:</b> <input type="text" id="quality" width="200px" value="' + quality + '"><br>' +
                 '<input type="button" value="Сохранить" onclick="waHelper.setMediaInfo();">');
     }
@@ -174,7 +175,7 @@ function WAHelper() {
                 '   <div style="position: absolute; top: 0;left: 0; background-color: gray; filter: alpha(opacity=70);' +
                 ' -moz-opacity: 0.7; opacity: 0.7; z-index: 200; width: 100%; height: 100%"></div>' +
                 '   <div style="position: absolute; top: 0; margin: auto; z-index: 300; width: 100%; height: 500px;">' +
-                '       <div style="box-shadow: 0 0 10px 1px black; width: 750px; background-color: white; padding: 20px; margin: 50px auto auto;">' +
+                '       <div style="box-shadow: 0 0 10px 1px black; width: 800px; background-color: white; padding: 20px; margin: 50px auto auto;">' +
                 innerHTML +
                 '<input type="button" value="Закрыть" onclick="waHelper.closeDiv();">' +
                 '       </div>' +
@@ -211,6 +212,8 @@ function WAHelper() {
         result = result.replace('_NAMES_', text);
 
         if (data.company) {
+            result = result.replace('_COMPANYURL_', data.company.url);
+            result = result.replace('_COMPANYNAME_', data.company.name);
             result = result.replace('_COMPANY_', '[url=' + data.company.url + ']' + data.company.name + '[/url]');
         }
 
@@ -235,14 +238,20 @@ function WAHelper() {
         }
         text = data.infoBlock['Автор оригинала'];
         if (text) {
+            result = result.replace('_AUTHORNAME_', text);
+            result = result.replace('_AUTHORURL_', data.infoBlock['links'][text]);
             result = result.replace('_AUTHOR_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
         }
         text = data.infoBlock['Режиссёр'];
         if (text) {
+            result = result.replace('_DIRECTORNAME_', text);
+            result = result.replace('_DIRECTORURL_', data.infoBlock['links'][text]);
             result = result.replace('_DIRECTOR_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
         }
         text = data.infoBlock['Сценарий'];
         if (text) {
+            result = result.replace('_SCENARYNAME_', text);
+            result = result.replace('_SCENARYURL_', data.infoBlock['links'][text]);
             result = result.replace('_SCENARY_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
         }
         if (data.description) {
@@ -254,44 +263,46 @@ function WAHelper() {
 
         if (data.episodes) {
             text = '';
+            var ep;
+            var textFmt = '';
             var max = data.episodes[data.episodes.length - 1].number;
             for (i = 0; i < data.episodes.length; i++) {
-                text += '[b]' + textHelper.padZero(data.episodes[i].number, max) +
-                        '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]\n';
+                ep = textHelper.padZero(data.episodes[i].number, max);
+                text += '' + ep + '. ' + data.episodes[i].name + '\n';
+                textFmt += '[b]' + ep + '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]\n';
             }
+            result = result.replace('_EPISODESFMT_', textFmt);
             result = result.replace('_EPISODES_', text);
         }
 
         if (data.crossLinks && data.crossLinks.length > 0) {
             text = '';
+            var textTbl = '[table][align=center]Название[/align][mcol][align=center]Релизы[/align]\n';
             for (var i = 0; i < data.crossLinks.length; i++) {
-                text += '\n' + data.crossLinks[i];
+                text += data.crossLinks[i] + '\n';
+                textTbl += '[row]' + data.crossLinks[i] + ' [col]\n';
             }
+            result = result.replace('_CROSSLINKSTBL_', textTbl + '[/table]');
             result = result.replace('_CROSSLINKS_', text);
         }
 
-        text = '[url=' + document.location.href + ']World-Art[/url]';
-        result = result.replace('_WA_', text);
-        var links = text;
+        result = result.replace('_WAURL_', document.location.href);
+        var links = '[url=' + document.location.href + ']World-Art[/url]';
         if (data.infoLinks['ANN']) {
-            text = '[url=' + data.infoLinks['ANN'] + ']ANN[/url]';
-            result = result.replace('_ANN_', text);
-            links += ', ' + text;
+            result = result.replace('_ANNURL_', data.infoLinks['ANN']);
+            links += ', [url=' + data.infoLinks['ANN'] + ']ANN[/url]';
         }
         if (data.infoLinks['AniDB']) {
-            text = '[url=' + data.infoLinks['AniDB'] + ']AniDB[/url]';
-            result = result.replace('_ANIDB_', text);
-            links += ', ' + text;
+            result = result.replace('_ANIDBURL_', data.infoLinks['AniDB']);
+            links += ', [url=' + data.infoLinks['AniDB'] + ']AniDB[/url]';
         }
         if (data.infoLinks['MyAnimeList']) {
-            text = '[url=' + data.infoLinks['MyAnimeList'] + ']MyAnimeList[/url]';
-            result = result.replace('_MAL_', text);
-            links += ', ' + text;
+            result = result.replace('_MALURL_', data.infoLinks['MyAnimeList']);
+            links += ', [url=' + data.infoLinks['MyAnimeList'] + ']MyAnimeList[/url]';
         }
         if (data.infoLinks['Сетка вещания']) {
-            text = '[url=' + data.infoLinks['Сетка вещания'] + ']Сетка вещания[/url]';
-            result = result.replace('_AIR_', text);
-            links += ', ' + text;
+            result = result.replace('_AIRURL_', data.infoLinks['Сетка вещания']);
+            links += ', [url=' + data.infoLinks['Сетка вещания'] + ']Сетка вещания[/url]';
         }
         result = result.replace('_INFOLINKS_', links);
 
@@ -341,7 +352,7 @@ function WAHelper() {
             }
             result = result.replace('_AUDIOLINE_', audio);
             result = result.replace('_SOUNDLINE_', sound);
-            result = result.replace('_AUDIOBLOCK_', block);
+            result = result.replace('_AUDIO_', block);
 
             var subs = '';
             if (mi.text.length == 1) {
@@ -356,7 +367,7 @@ function WAHelper() {
                     }
                 }
             }
-            result = result.replace('_SUBSLANG_', subs);
+            result = result.replace('_SUBSLINE_', subs);
             result = result.replace('_MEDIAINFO_', mediaInfo);
         }
         result = result.replace('_HEADER_', header);
@@ -583,6 +594,7 @@ function NNMHelper() {
             }
             notes += '[hide=Состав серии]' + text + '[/hide]';
         }
+        notes += '\n[hr][color=red]Вложенные спойлеры также нужно вынести из-под спойлера с доп. информацией, а пустой спойлер убрать.[/color]';
         table['Дополнительная информация'].input.value = notes;
     }
 
