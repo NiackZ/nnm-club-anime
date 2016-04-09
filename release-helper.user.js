@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.10
+// @version       1.0.0.11
 // @author        ElSwanko
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -581,7 +581,7 @@ function NNMHelper() {
         if (data.infoLinks['Сетка вещания']) {
             text += (text.length == 0 ? '' : ', ') + '[url=' + data.infoLinks['Сетка вещания'] + ']Сетка вещания[/url]';
         }
-        notes += text + '[hr]\n[color=red]После обработки введённой информации визардом, вынести ссылки из-под спойлера ' +
+        notes += text + '\n[hr]\n[color=red]После обработки введённой информации визардом, вынести ссылки из-под спойлера ' +
                 'и разместить их после ссылки на World-Art.[/color]\n[hr]\n';
 
         if (data.notes) {
