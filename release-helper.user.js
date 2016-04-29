@@ -2,15 +2,13 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.14
+// @version       1.0.0.15
 // @author        ElSwanko
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
 // @downloadURL   https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.user.js
 // @include       http://www.world-art.ru/animation/*
 // @match         http://www.world-art.ru/animation/*
-// @include       https://www.world-art.ru/animation/*
-// @match         https://www.world-art.ru/animation/*
 // @include       http://nnmclub.to/forum/release.php?what=anime_common*
 // @match         http://nnmclub.to/forum/release.php?what=anime_common*
 // @include       http://*.nnmclub.to/forum/release.php?what=anime_common*
@@ -660,9 +658,15 @@ function NNMHelper() {
             return {
                 jap: 0, rus: 0, eng: 0, inc: function (lang) {
                     switch (lang) {
-                    case 'jap': this.jap++; break;
-                    case 'rus': this.rus++; break;
-                    case 'eng': this.eng++; break;
+                    case 'jap':
+                        this.jap++;
+                        break;
+                    case 'rus':
+                        this.rus++;
+                        break;
+                    case 'eng':
+                        this.eng++;
+                        break;
                     }
                 }
             }
@@ -1069,7 +1073,15 @@ function MIProcessor() {
     }
 
     function parseVideo(video) {
-        var result = {format: null, resolution: null, scanType: null, frameRate: null, bitrate: null, bitDepth: null, string: null};
+        var result = {
+            format: null,
+            resolution: null,
+            scanType: null,
+            frameRate: null,
+            bitrate: null,
+            bitDepth: null,
+            string: null
+        };
 
         result.bitDepth = parseNumbers(video['Bit depth'] || video['Битовая глубина'])[0];
 
@@ -1089,8 +1101,11 @@ function MIProcessor() {
             result.scanType = heigth + 'i';
         }
 
-        var frameRate = (video['Frame rate'] || video['Частота кадров']).split(' ')[0].replace(',', '.');
-        result.frameRate = '~' + frameRate + ' fps';
+        var frameRate = video['Frame rate'] || video['Частота кадров'];
+        if (frameRate) {
+            frameRate = frameRate.split(' ')[0].replace(',', '.')
+            result.frameRate = '~' + frameRate + ' fps';
+        }
 
         var bitrate = parseNumbers(video['Bit rate'] || video['Битрейт']);
         if (!bitrate) {
@@ -1110,15 +1125,18 @@ function MIProcessor() {
         }
         result.bitrate = bitrate ? '~' + bitrate[0] + ' ' + bitrate[1] : null;
 
-        result.string = result.format + ', ' + result.resolution + ', ' + result.frameRate +
+        result.string = result.format + ', ' + result.resolution +
+                (result.frameRate ? ', ' + result.frameRate : '') +
                 (result.bitrate ? ', ' + result.bitrate : '');
 
         return result;
     }
 
     function parseAudio(audio) {
-        var result = {format: null, channels: null, bitDepth: null, sampleRate: null, bitRate: null,
-            language: null, lang: null, title: null, string: null};
+        var result = {
+            format: null, channels: null, bitDepth: null, sampleRate: null, bitRate: null,
+            language: null, lang: null, title: null, string: null
+        };
 
         result.language = (audio['Language'] || audio['Язык']);
         result.lang = getShortLang(result.language);
@@ -1163,7 +1181,8 @@ function MIProcessor() {
         result.bitRate = bitrate ? '~' + bitrate[0] + ' ' + bitrate[1] : null;
 
         result.string = result.format + ', ' + result.channels + ', ' + result.sampleRate +
-                (result.bitDepth ? ', ' + result.bitDepth + ' bit' : '') + (result.bitRate ? ', ' + result.bitRate : '');
+                (result.bitDepth ? ', ' + result.bitDepth + ' bit' : '') + (result.bitRate ? ', ' + result.bitRate
+                        : '');
 
         return result;
     }
@@ -1206,7 +1225,7 @@ function TextHelper() {
         var result = {eng: false, rus: false, jap: false};
         if (text.replace(/[a-zA-Z0-9 _=!@#$%^&*\-\(\)\[\]\{\}|\\:;"\'\/?<>.,]/g, '').length == 0) {
             result.eng = true;
-        } else if (text.replace(/[а-яА-Яa-zA-Z0-9 _=!@#$%^&*\-\(\)\[\]\{\}|\\:;"\'\/?<>.,]/g, '').length == 0) {
+        } else if (text.replace(/[а-яА-ЯёЁa-zA-Z0-9 _=!@#$%^&*\-\(\)\[\]\{\}|\\:;"\'\/?<>.,]/g, '').length == 0) {
             result.rus = true;
         } else {
             result.jap = true;
