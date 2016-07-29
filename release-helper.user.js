@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.15
+// @version       1.0.0.16
 // @author        ElSwanko
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -70,29 +70,6 @@ function WAHelper() {
             '[/code][/spoiler]\n' +
             '[align=center][b]Время раздачи:[/b] круглосуточно[/align]\n';
 
-    /*
-     var defaultTemplate =
-     '[hide=_STRINGNAMES_]\n' +
-     '[align=center][color=#336699][size=16][b]\n' +
-     '_NAMES_\n' +
-     '[/b][/size][/color][/align][hr]\n' +
-     '[img=right]_POSTER_[/img]\n' +
-     '[b]Жанр:[/b] _GENRE_\n' +
-     '[b]Тип:[/b] _TYPE_\n' +
-     '[b]Продолжительность:[/b] _DURATION_\n' +
-     '[b]Выпуск:[/b] _DATE_\n' +
-     '[b]Производство:[/b] студия _COMPANY_\n' +
-     '[b]Автор оригинала:[/b] _AUTHOR_\n' +
-     '[b]Режиссер:[/b] _DIRECTOR_\n' +
-     '[b]Сценарий:[/b] _SCENARY_\n' +
-     '[b]Ссылки:[/b] _INFOLINKS_\n' +
-     '[hr]\n' +
-     '[b]Описание:[/b]\n' +
-     '_DESCRIPTION_\n' +
-     '_NOTES_\n' +
-     '[/hide]\n';
-     */
-
     var mediaInfo = '';
     var quality = '';
 
@@ -102,12 +79,14 @@ function WAHelper() {
 
     function drawLinks() {
         var div = document.createElement('div');
-        div.innerHTML = '<input type="button" value="Установить шаблон" onclick="waHelper.openTemplateDiv();"> || ' +
-                '<input type="button" value="Задать MediaInfo" onclick="waHelper.openMediaInfoDiv();">' +
-                '<input type="button" value="Сгенерировать описание" onclick="waHelper.process();">';
-        var a = document.querySelector('a[style="text-decoration: none"]');
+        div.innerHTML = "<table cellpadding=0 cellspacing=2 border=0><tr>"+
+                "<td width=110 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openTemplateDiv();'>Установить шаблон</a></td><td width=1 bgcolor=gray></td>"+
+                "<td width=120 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openMediaInfoDiv();'>Задать MediaInfo</a></td><td width=1 bgcolor=gray></td>"+
+                "<td width=140 height=40 align=center bgcolor=963D3D><a href='javascript:;' style=text-decoration:none onclick='waHelper.process();'><font color=white>Сгенерировать описание</font></a></td>"+
+                "<td width=1 bgcolor=gray></td></tr></table>"
+        var a = document.querySelector('a[style="text-decoration:none"]');
         var table = a.parentNode.parentNode.parentNode.parentNode;
-        table.parentNode.insertBefore(div, table);
+        table.parentNode.insertBefore(div, table.nextSibling);
     }
 
     function openTemplateDiv() {
