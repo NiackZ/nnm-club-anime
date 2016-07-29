@@ -2,8 +2,8 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.16
-// @author        ElSwanko
+// @version       1.0.0.17
+// @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
 // @downloadURL   https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.user.js
@@ -41,7 +41,7 @@ function WAHelper() {
             '[b]Производство:[/b] студия _COMPANY_\n' +
             '[b]Автор оригинала:[/b] _AUTHOR_\n' +
             '[b]Режиссер:[/b] _DIRECTOR_\n' +
-            '[b]Сценарий:[/b] _SCENARY_\n' +
+            '_IFSCENARY[b]Сценарий:[/b] _SCENARY_ IFSCENARY_\n' +
             '[b]Ссылки:[/b] _INFOLINKS_\n' +
             '[hr]\n' +
             '[b]Описание:[/b]\n' +
@@ -83,7 +83,7 @@ function WAHelper() {
                 "<td width=110 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openTemplateDiv();'>Установить шаблон</a></td><td width=1 bgcolor=gray></td>"+
                 "<td width=120 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openMediaInfoDiv();'>Задать MediaInfo</a></td><td width=1 bgcolor=gray></td>"+
                 "<td width=140 height=40 align=center bgcolor=963D3D><a href='javascript:;' style=text-decoration:none onclick='waHelper.process();'><font color=white>Сгенерировать описание</font></a></td>"+
-                "<td width=1 bgcolor=gray></td></tr></table>"
+                "<td width=1 bgcolor=gray></td></tr></table>";
         var a = document.querySelector('a[style="text-decoration:none"]');
         var table = a.parentNode.parentNode.parentNode.parentNode;
         table.parentNode.insertBefore(div, table.nextSibling);
@@ -110,9 +110,17 @@ function WAHelper() {
                 '<b>_EPISODES_</b> — неформатированный список эпизодов; ' +
                 '<b>_EPISODESFMT_</b> — BB-код списка эпизодов с небольшим оформлением;<br>' +
                 '<b>_CROSSLINKS_</b> — состав серии, список связанных произведений; ' +
-                '<b>_CROSSLINKSTBL_</b> — BB-кол состава серии с оформлением таблицей;<br>' +
-                '<b>_QUALITY_</b> — качество видео (если задано соответствующее значение);<br><br>' +
-                'Если задан отчёт <b>MediaInfo</b>, заполняются следующие поля:<br>' +
+                '<b>_CROSSLINKSTBL_</b> — BB-код состава серии с оформлением таблицей;<br>' +
+                '<br><b>Условия в шаблоне:</b><br>'+
+                'Если переменная выбранного типа не была обнаружена, то всё, что находится внутри условия не будет использовано.<br>' +
+                '<b>_IFSCENARY IFSCENARY_</b> — Сценарий<br>'+
+                '<b>_IFDIRECTOR IFDIRECTOR_</b> — Режиссёр<br>'+
+                '<b>_IFAUTHOR IFAUTHOR_</b> — Автор<br>'+
+                '<b>_IFCOMPANY IFCOMPANY_</b> — Компания<br>'+
+                '<b>_IFEPISODES IFEPISODES_</b> — Эпизоды<br>'+
+                '<b>_IFCROSS IFCROSS_</b> — Состав серии<br>'+
+                '<br>Если задан отчёт <b>MediaInfo</b>, заполняются следующие поля:<br><br>' +
+                '<b>_QUALITY_</b> — качество видео (если задано соответствующее значение);<br>' +
                 '<b>_DURATION_</b> — продолжительность видеофайла (если длительность не указана на странице ВА); ' +
                 '<b>_MEDIAINFO_</b> — отчёт MediaInfo;<br>' +
                 '<b>_AUDIO_</b> — готовый BB-код для параметров аудио и языка звуковой дорожки, по одной дорожке на строку;<br>' +
@@ -192,6 +200,10 @@ function WAHelper() {
             result = result.replace('_COMPANYURL_', data.company.url);
             result = result.replace('_COMPANYNAME_', data.company.name);
             result = result.replace('_COMPANY_', '[url=' + data.company.url + ']' + data.company.name + '[/url]');
+        } else {
+            while (result.indexOf('_IFCOMPANY') > 0 && result.indexOf('IFCOMPANY_') > 0){
+            result = result.replace(result.substring(result.indexOf('_IFCOMPANY')-1, (result.indexOf('IFCOMPANY_')+10)), '');
+            }
         }
 
         var sp = data.infoBlock['SP'];
@@ -218,18 +230,30 @@ function WAHelper() {
             result = result.replace('_AUTHORNAME_', text);
             result = result.replace('_AUTHORURL_', data.infoBlock['links'][text]);
             result = result.replace('_AUTHOR_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
+        } else {
+            while (result.indexOf('_IFAUTHOR') > 0 && result.indexOf('IFAUTHOR_') > 0){
+            result = result.replace(result.substring(result.indexOf('_IFAUTHOR')-1, (result.indexOf('IFAUTHOR_')+9)), '');
+            }
         }
         text = data.infoBlock['Режиссёр'];
         if (text) {
             result = result.replace('_DIRECTORNAME_', text);
             result = result.replace('_DIRECTORURL_', data.infoBlock['links'][text]);
             result = result.replace('_DIRECTOR_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
+        } else {
+            while (result.indexOf('_IFDIRECTOR') > 0 && result.indexOf('IFDIRECTOR_') > 0){
+            result = result.replace(result.substring(result.indexOf('_IFDIRECTOR')-1, (result.indexOf('IFDIRECTOR_')+11)), '');
+            }
         }
         text = data.infoBlock['Сценарий'];
         if (text) {
             result = result.replace('_SCENARYNAME_', text);
             result = result.replace('_SCENARYURL_', data.infoBlock['links'][text]);
             result = result.replace('_SCENARY_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
+        } else {
+            while (result.indexOf('_IFSCENARY') > 0 && result.indexOf('IFSCENARY_') > 0){
+            result = result.replace(result.substring(result.indexOf('_IFSCENARY')-1, (result.indexOf('IFSCENARY_')+10)), '');
+            }
         }
         if (data.description) {
             result = result.replace('_DESCRIPTION_', data.description);
@@ -237,7 +261,6 @@ function WAHelper() {
         if (data.notes) {
             result = result.replace('_NOTES_', data.notes);
         }
-
         if (data.episodes) {
             text = '';
             var ep;
@@ -245,11 +268,15 @@ function WAHelper() {
             var max = data.episodes[data.episodes.length - 1].number;
             for (i = 0; i < data.episodes.length; i++) {
                 ep = textHelper.padZero(data.episodes[i].number, max);
-                text += '' + ep + '. ' + data.episodes[i].name + '\n';
-                textFmt += '[b]' + ep + '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]\n';
+                text += '' + ep + '. ' + data.episodes[i].name; (i==max-1) ? text+='' : text+='\n';
+                textFmt += '[b]' + ep + '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]';(i==max-1) ? textFmt+='' : textFmt+='\n';
             }
             result = result.replace('_EPISODESFMT_', textFmt);
             result = result.replace('_EPISODES_', text);
+        } else {
+            while (result.indexOf('_IFEPISODES') > 0 && result.indexOf('IFEPISODES_') > 0){
+            result = result.replace(result.substring(result.indexOf('_IFEPISODES')-1, (result.indexOf('IFEPISODES_')+11)), '');
+            }
         }
 
         if (data.crossLinks && data.crossLinks.length > 0) {
@@ -261,6 +288,10 @@ function WAHelper() {
             }
             result = result.replace('_CROSSLINKSTBL_', textTbl + '[/table]');
             result = result.replace('_CROSSLINKS_', text);
+        } else {
+            while (result.indexOf('_IFCROSS') > 0 && result.indexOf('IFCROSS_') > 0){
+            result = result.replace(result.substring(result.indexOf('_IFCROSS')-1, (result.indexOf('IFCROSS_')+8)), '');
+            }
         }
 
         result = result.replace('_WAURL_', document.location.href);
@@ -282,6 +313,20 @@ function WAHelper() {
             links += ', [url=' + data.infoLinks['Сетка вещания'] + ']Сетка вещания[/url]';
         }
         result = result.replace('_INFOLINKS_', links);
+
+        // IF Replacing
+        result = replaceAll(result, "_IFSCENARY");
+        result = replaceAll(result, "IFSCENARY_");
+        result = replaceAll(result, "_IFDIRECTOR");
+        result = replaceAll(result, "IFDIRECTOR_");
+        result = replaceAll(result, "_IFAUTHOR");
+        result = replaceAll(result, "IFAUTHOR_");
+        result = replaceAll(result, "_IFCOMPANY");
+        result = replaceAll(result, "IFCOMPANY_");
+        result = replaceAll(result, "_IFEPISODES");
+        result = replaceAll(result, "IFEPISODES_");
+        result = replaceAll(result, "_IFCROSS");
+        result = replaceAll(result, "IFCROSS_");
 
         if (quality) {
             result = result.replace('_QUALITY_', quality);
@@ -352,6 +397,13 @@ function WAHelper() {
         console.log('result: \n' + result);
 
         copyTextToClipboard(result);
+    }
+
+    function replaceAll(a, text) {
+        while (a.indexOf(text) >=0){
+        a = a.replace(text, '');
+        }
+        return a;
     }
 
     function copyTextToClipboard(text) {
