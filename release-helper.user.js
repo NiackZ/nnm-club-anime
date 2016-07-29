@@ -41,7 +41,7 @@ function WAHelper() {
             '[b]Производство:[/b] студия _COMPANY_\n' +
             '[b]Автор оригинала:[/b] _AUTHOR_\n' +
             '[b]Режиссер:[/b] _DIRECTOR_\n' +
-            '[b]Сценарий:[/b] _SCENARY_\n' +
+            '_IFSCENARY[b]Сценарий:[/b] _SCENARY_ IFSCENARY_\n' +
             '[b]Ссылки:[/b] _INFOLINKS_\n' +
             '[hr]\n' +
             '[b]Описание:[/b]\n' +
