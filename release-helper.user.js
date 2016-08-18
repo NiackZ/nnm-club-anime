@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.17
+// @version       1.0.0.18
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -128,10 +128,10 @@ function WAHelper() {
                 '<b>_SOUNDLINE_</b> — язык звуковых дорожек одной строкой; <b>_SUBSLINE_</b> — язык субтитров одной строкой;<br>' +
                 '<b>_HEADER_</b> — заголовок релиза с краткой технической информацией.<br><br>' +
                 '<strong>Шаблон:</strong><br>' +
-                '<textarea rows="15" cols="95" id="templateText">' +
+                '<textarea rows="11" cols="110" id="templateText">' +
                 (localStorage.template ? localStorage.template : defaultTemplate) +
                 '</textarea><br>' +
-                '<input type="button" value="Сохранить" onclick="waHelper.setTemplate();">');
+                "<table cellpadding=0 cellspacing=2 border=0><td width=80 height=30 align=center bgcolor=963D3D><a href='javascript:;' style=text-decoration:none onclick='waHelper.setTemplate();'><font color=white>Сохранить</font></a></td>");
     }
 
     function setTemplate() {
@@ -144,7 +144,7 @@ function WAHelper() {
         openDiv('<strong>Отчёт Media Info:</strong><br>' +
                 '<textarea rows="30" cols="95" id="mediaInfo">' + mediaInfo + '</textarea><br>' +
                 '<b>Качество видео:</b> <input type="text" id="quality" width="200px" value="' + quality + '"><br>' +
-                '<input type="button" value="Сохранить" onclick="waHelper.setMediaInfo();">');
+                "<table cellpadding=0 cellspacing=2 border=0><td width=80 height=30 align=center bgcolor=963D3D><a href='javascript:;' style=text-decoration:none onclick='waHelper.setMediaInfo();'><font color=white>Сохранить</font></a></td>");
     }
 
     function setMediaInfo() {
@@ -160,9 +160,10 @@ function WAHelper() {
                 '   <div style="position: absolute; top: 0;left: 0; background-color: gray; filter: alpha(opacity=70);' +
                 ' -moz-opacity: 0.7; opacity: 0.7; z-index: 200; width: 100%; height: 100%"></div>' +
                 '   <div style="position: absolute; top: 0; margin: auto; z-index: 300; width: 100%; height: 500px;">' +
-                '       <div style="box-shadow: 0 0 10px 1px black; width: 800px; background-color: white; padding: 20px; margin: 50px auto auto;">' +
+                '       <div style="box-shadow: 0 0 10px 1px black; width: 800px; background-color: white; padding: 20px; margin: 25px auto auto;">' +
+                "<p style='text-align:right;'><a href='javascript:;' style=text-decoration:none onclick='waHelper.closeDiv();'><font color=red>X</font></a></p>" +
                 innerHTML +
-                '<input type="button" value="Закрыть" onclick="waHelper.closeDiv();">' +
+                "<td width=1 bgcolor=gray></td><td width=70 height=30 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.closeDiv();'>Закрыть</a></td></table>" +
                 '       </div>' +
                 '   </div>' +
                 '</div>';
@@ -201,9 +202,7 @@ function WAHelper() {
             result = result.replace('_COMPANYNAME_', data.company.name);
             result = result.replace('_COMPANY_', '[url=' + data.company.url + ']' + data.company.name + '[/url]');
         } else {
-            while (result.indexOf('_IFCOMPANY') > 0 && result.indexOf('IFCOMPANY_') > 0){
-            result = result.replace(result.substring(result.indexOf('_IFCOMPANY')-1, (result.indexOf('IFCOMPANY_')+10)), '');
-            }
+            result = replaceVar(result, 'IFCOMPANY');
         }
 
         var sp = data.infoBlock['SP'];
@@ -231,9 +230,7 @@ function WAHelper() {
             result = result.replace('_AUTHORURL_', data.infoBlock['links'][text]);
             result = result.replace('_AUTHOR_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
         } else {
-            while (result.indexOf('_IFAUTHOR') > 0 && result.indexOf('IFAUTHOR_') > 0){
-            result = result.replace(result.substring(result.indexOf('_IFAUTHOR')-1, (result.indexOf('IFAUTHOR_')+9)), '');
-            }
+            result = replaceVar(result, 'IFAUTHOR');
         }
         text = data.infoBlock['Режиссёр'];
         if (text) {
@@ -241,9 +238,7 @@ function WAHelper() {
             result = result.replace('_DIRECTORURL_', data.infoBlock['links'][text]);
             result = result.replace('_DIRECTOR_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
         } else {
-            while (result.indexOf('_IFDIRECTOR') > 0 && result.indexOf('IFDIRECTOR_') > 0){
-            result = result.replace(result.substring(result.indexOf('_IFDIRECTOR')-1, (result.indexOf('IFDIRECTOR_')+11)), '');
-            }
+            result = replaceVar(result, 'IFDIRECTOR');
         }
         text = data.infoBlock['Сценарий'];
         if (text) {
@@ -251,9 +246,7 @@ function WAHelper() {
             result = result.replace('_SCENARYURL_', data.infoBlock['links'][text]);
             result = result.replace('_SCENARY_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
         } else {
-            while (result.indexOf('_IFSCENARY') > 0 && result.indexOf('IFSCENARY_') > 0){
-            result = result.replace(result.substring(result.indexOf('_IFSCENARY')-1, (result.indexOf('IFSCENARY_')+10)), '');
-            }
+            result = replaceVar(result, 'IFSCENARY');
         }
         if (data.description) {
             result = result.replace('_DESCRIPTION_', data.description);
@@ -274,9 +267,7 @@ function WAHelper() {
             result = result.replace('_EPISODESFMT_', textFmt);
             result = result.replace('_EPISODES_', text);
         } else {
-            while (result.indexOf('_IFEPISODES') > 0 && result.indexOf('IFEPISODES_') > 0){
-            result = result.replace(result.substring(result.indexOf('_IFEPISODES')-1, (result.indexOf('IFEPISODES_')+11)), '');
-            }
+            result = replaceVar(result, 'IFEPISODES');
         }
 
         if (data.crossLinks && data.crossLinks.length > 0) {
@@ -289,9 +280,7 @@ function WAHelper() {
             result = result.replace('_CROSSLINKSTBL_', textTbl + '[/table]');
             result = result.replace('_CROSSLINKS_', text);
         } else {
-            while (result.indexOf('_IFCROSS') > 0 && result.indexOf('IFCROSS_') > 0){
-            result = result.replace(result.substring(result.indexOf('_IFCROSS')-1, (result.indexOf('IFCROSS_')+8)), '');
-            }
+            result = replaceVar(result, 'IFCROSS');
         }
 
         result = result.replace('_WAURL_', document.location.href);
@@ -403,6 +392,13 @@ function WAHelper() {
         while (a.indexOf(text) >=0){
         a = a.replace(text, '');
         }
+        return a;
+    }
+
+    function replaceVar(a, text) {
+        while (a.indexOf('_'+text) > 0 && a.indexOf(text+'_') > 0){
+            a = a.replace(a.substring(a.indexOf('_'+text)-1, (a.indexOf(text+'_')+text.length+1)), '');
+            }
         return a;
     }
 
@@ -906,21 +902,21 @@ function WAProcessor() {
     }
 
     function getDescription(page) {
-        var text = getTextFromNearTable(page.querySelectorAll('font[size="2"][color="#99000"]'), 'Краткое содержание:');
+        var text = getTextFromNearTable(page.querySelectorAll('font[size="2"]'), 'Краткое содержание');
         if (text) {
             return text.replace('при копировании текста активная ссылка на www.world-art.ru обязательна, подробнее о перепечатке текстов\n', '');
         }
     }
 
     function getNotes(page) {
-        return getTextFromNearTable(page.querySelectorAll('font[size="2"][color="#99000"]'), 'Справка:');
+        return getTextFromNearTable(page.querySelectorAll('font[size="2"]'), 'Справка');
     }
 
     function getEpisodes(page) {
         var result = [];
         var fe = document.querySelectorAll('td[valign="top"]>font[size="2"]');
         if (fe.length == 1) {
-            var text = getTextFromNearTable(page.querySelectorAll('font[size="2"][color="#990000"]'), 'Эпизоды:');
+            var text = getTextFromNearTable(page.querySelectorAll('font[size="2"]'), 'Эпизоды');
             if (text) {
                 var tt = text.split('\n');
                 for (var i = 0; i < tt.length; i++) {
