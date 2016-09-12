@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.18
+// @version       1.0.0.19
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -38,9 +38,9 @@ function WAHelper() {
             '[b]Продолжительность:[/b] _DURATION_\n' +
             '[b]Количество серий:[/b] _COUNT_\n' +
             '[b]Выпуск:[/b] _DATE_\n' +
-            '[b]Производство:[/b] студия _COMPANY_\n' +
-            '[b]Автор оригинала:[/b] _AUTHOR_\n' +
-            '[b]Режиссер:[/b] _DIRECTOR_\n' +
+            '_IFCOMPANY[b]Производство:[/b] студия _COMPANY_ IFCOMPANY_\n' +
+            '_IFAUTHOR[b]Автор оригинала:[/b] _AUTHOR_ IFAUTHOR_\n' +
+            '_IFDIRECTOR[b]Режиссер:[/b] _DIRECTOR_ IFDIRECTOR_\n' +
             '_IFSCENARY[b]Сценарий:[/b] _SCENARY_ IFSCENARY_\n' +
             '[b]Ссылки:[/b] _INFOLINKS_\n' +
             '[hr]\n' +
@@ -56,15 +56,15 @@ function WAHelper() {
             '[brc][align=center][b]Скриншоты:[/b]\n' +
             'SCREENSHOTS\n' +
             '[/align]\n' +
-            '[hide=Эпизоды]\n' +
+            '_IFEPISODES[hide=Эпизоды]\n' +
             '_EPISODESFMT_\n' +
-            '[/hide]\n' +
-            '[hide=Справка]\n' +
+            '[/hide]IFEPISODES_\n' +
+            '_IFNOTES[hide=Справка]\n' +
             '_NOTES_\n' +
-            '[/hide]\n' +
-            '[hide=Состав серии]\n' +
+            '[/hide]IFNOTES_\n' +
+            '_IFCROSS[hide=Состав серии]\n' +
             '_CROSSLINKS_\n' +
-            '[/hide]\n' +
+            '[/hide]IFCROSS_\n' +
             '[spoiler=Media Info на первую серию][code]\n' +
             '_MEDIAINFO_\n' +
             '[/code][/spoiler]\n' +
@@ -79,10 +79,10 @@ function WAHelper() {
 
     function drawLinks() {
         var div = document.createElement('div');
-        div.innerHTML = "<table cellpadding=0 cellspacing=2 border=0><tr>"+
-                "<td width=110 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openTemplateDiv();'>Установить шаблон</a></td><td width=1 bgcolor=gray></td>"+
-                "<td width=120 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openMediaInfoDiv();'>Задать MediaInfo</a></td><td width=1 bgcolor=gray></td>"+
-                "<td width=140 height=40 align=center bgcolor=963D3D><a href='javascript:;' style=text-decoration:none onclick='waHelper.process();'><font color=white>Сгенерировать описание</font></a></td>"+
+        div.innerHTML = "<table cellpadding=0 cellspacing=2 border=0><tr>" +
+                "<td width=110 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openTemplateDiv();'>Установить шаблон</a></td><td width=1 bgcolor=gray></td>" +
+                "<td width=120 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openMediaInfoDiv();'>Задать MediaInfo</a></td><td width=1 bgcolor=gray></td>" +
+                "<td width=140 height=40 align=center bgcolor=963D3D><a href='javascript:;' style=text-decoration:none onclick='waHelper.process();'><font color=white>Сгенерировать описание</font></a></td>" +
                 "<td width=1 bgcolor=gray></td></tr></table>";
         var a = document.querySelector('a[style="text-decoration:none"]');
         var table = a.parentNode.parentNode.parentNode.parentNode;
@@ -111,14 +111,11 @@ function WAHelper() {
                 '<b>_EPISODESFMT_</b> — BB-код списка эпизодов с небольшим оформлением;<br>' +
                 '<b>_CROSSLINKS_</b> — состав серии, список связанных произведений; ' +
                 '<b>_CROSSLINKSTBL_</b> — BB-код состава серии с оформлением таблицей;<br>' +
-                '<br><b>Условия в шаблоне:</b><br>'+
+                '<br><b>Условия в шаблоне:</b><br>' +
                 'Если переменная выбранного типа не была обнаружена, то всё, что находится внутри условия не будет использовано.<br>' +
-                '<b>_IFSCENARY IFSCENARY_</b> — Сценарий<br>'+
-                '<b>_IFDIRECTOR IFDIRECTOR_</b> — Режиссёр<br>'+
-                '<b>_IFAUTHOR IFAUTHOR_</b> — Автор<br>'+
-                '<b>_IFCOMPANY IFCOMPANY_</b> — Компания<br>'+
-                '<b>_IFEPISODES IFEPISODES_</b> — Эпизоды<br>'+
-                '<b>_IFCROSS IFCROSS_</b> — Состав серии<br>'+
+                '<b>_IFSCENARY IFSCENARY_</b> — Сценарий; <b>_IFDIRECTOR IFDIRECTOR_</b> — Режиссёр;<br>' +
+                '<b>_IFAUTHOR IFAUTHOR_</b> — Автор; <b>_IFCOMPANY IFCOMPANY_</b> — Компания;<br>' +
+                '<b>_IFEPISODES IFEPISODES_</b> — Эпизоды; <b>_IFNOTES IFNOTES_</b> — Справка; <b>_IFCROSS IFCROSS_</b> — Состав серии<br>' +
                 '<br>Если задан отчёт <b>MediaInfo</b>, заполняются следующие поля:<br><br>' +
                 '<b>_QUALITY_</b> — качество видео (если задано соответствующее значение);<br>' +
                 '<b>_DURATION_</b> — продолжительность видеофайла (если длительность не указана на странице ВА); ' +
@@ -128,7 +125,7 @@ function WAHelper() {
                 '<b>_SOUNDLINE_</b> — язык звуковых дорожек одной строкой; <b>_SUBSLINE_</b> — язык субтитров одной строкой;<br>' +
                 '<b>_HEADER_</b> — заголовок релиза с краткой технической информацией.<br><br>' +
                 '<strong>Шаблон:</strong><br>' +
-                '<textarea rows="11" cols="110" id="templateText">' +
+                '<textarea rows="12" cols="95" id="templateText">' +
                 (localStorage.template ? localStorage.template : defaultTemplate) +
                 '</textarea><br>' +
                 "<table cellpadding=0 cellspacing=2 border=0><td width=80 height=30 align=center bgcolor=963D3D><a href='javascript:;' style=text-decoration:none onclick='waHelper.setTemplate();'><font color=white>Сохранить</font></a></td>");
@@ -180,6 +177,7 @@ function WAHelper() {
     function process() {
         var page = document.body;//waProcessor.loadPage(document.location.href);
         var data = waProcessor.loadData(page);
+        //console.log('data: ' + JSON.stringify(data));
         var mi = miProcessor.parseMediaInfo(mediaInfo);
 
         var result = (localStorage.template || defaultTemplate).replace('_POSTER_', data.poster);
@@ -253,6 +251,8 @@ function WAHelper() {
         }
         if (data.notes) {
             result = result.replace('_NOTES_', data.notes);
+        } else {
+            result = replaceVar(result, 'IFNOTES');
         }
         if (data.episodes) {
             text = '';
@@ -261,8 +261,10 @@ function WAHelper() {
             var max = data.episodes[data.episodes.length - 1].number;
             for (i = 0; i < data.episodes.length; i++) {
                 ep = textHelper.padZero(data.episodes[i].number, max);
-                text += '' + ep + '. ' + data.episodes[i].name; (i==max-1) ? text+='' : text+='\n';
-                textFmt += '[b]' + ep + '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]';(i==max-1) ? textFmt+='' : textFmt+='\n';
+                text += '' + ep + '. ' + data.episodes[i].name;
+                (i == max - 1) ? text += '' : text += '\n';
+                textFmt += '[b]' + ep + '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]';
+                (i == max - 1) ? textFmt += '' : textFmt += '\n';
             }
             result = result.replace('_EPISODESFMT_', textFmt);
             result = result.replace('_EPISODES_', text);
@@ -316,6 +318,8 @@ function WAHelper() {
         result = replaceAll(result, "IFEPISODES_");
         result = replaceAll(result, "_IFCROSS");
         result = replaceAll(result, "IFCROSS_");
+        result = replaceAll(result, "_IFNOTES");
+        result = replaceAll(result, "IFNOTES_");
 
         if (quality) {
             result = result.replace('_QUALITY_', quality);
@@ -331,7 +335,7 @@ function WAHelper() {
             var video = '';
             if (mi.video.length == 1) {
                 video = mi.video[0].string;
-                header += ' ' + mi.video[0].scanType + (mi.video[0].bitDepth == 10 ? ' Hi10P' : '');
+                header += ' ' + mi.video[0].scanType + (mi.video[0].bitDepth != 8 ? ' ' + mi.video[0].bitDepth + 'bit' : '');
             } else {
                 for (i = 0; i < mi.video.length; i++) {
                     video += '#' + (i + 1) + ': ' + mi.video[i].string + '; ';
@@ -389,16 +393,16 @@ function WAHelper() {
     }
 
     function replaceAll(a, text) {
-        while (a.indexOf(text) >=0){
-        a = a.replace(text, '');
+        while (a.indexOf(text) >= 0) {
+            a = a.replace(text, '');
         }
         return a;
     }
 
     function replaceVar(a, text) {
-        while (a.indexOf('_'+text) > 0 && a.indexOf(text+'_') > 0){
-            a = a.replace(a.substring(a.indexOf('_'+text)-1, (a.indexOf(text+'_')+text.length+1)), '');
-            }
+        while (a.indexOf('_' + text) > 0 && a.indexOf(text + '_') > 0) {
+            a = a.replace(a.substring(a.indexOf('_' + text) - 1, (a.indexOf(text + '_') + text.length + 1)), '');
+        }
         return a;
     }
 
@@ -633,7 +637,7 @@ function NNMHelper() {
             var videoSpec = '';
             if (mi.video.length == 1) {
                 video = mi.video[0].string;
-                videoSpec += mi.video[0].scanType + (mi.video[0].bitDepth == 10 ? ' Hi10P' : '');
+                videoSpec += mi.video[0].scanType + (mi.video[0].bitDepth != 8 ? ' ' + mi.video[0].bitDepth + 'bit' : '');
             } else {
                 for (i = 0; i < mi.video.length; i++) {
                     video += '#' + (i + 1) + ': ' + mi.video[i].string + '; ';
@@ -834,10 +838,12 @@ function WAProcessor() {
 
     function getInfoBlock(block) {
         var result = {};
-        var info = textHelper.innerText(block.querySelector('font[size="2"]').innerHTML).split('\n');
-        for (var i = 0; i < info.length; i++) {
-            if (info[i].indexOf(':') > 0) {
-                var ss = info[i].split(':');
+        //var info = textHelper.innerText(block.querySelector('font[size="2"]').innerHTML).split('\n');
+        var infos = block.querySelectorAll('td.review');
+        for (var i = 0; i < infos.length; i++) {
+            var info = textHelper.innerText(infos[i].innerHTML);
+            if (info.indexOf(':') > 0) {
+                var ss = info.split(':');
                 result[ss[0].trim()] = (ss[1].indexOf('|') > 0 ? ss[1].split('|')[0] : ss[1]).trim();
             }
         }
@@ -852,7 +858,7 @@ function WAProcessor() {
                 result['Complete'] = true;
             }
         }
-        var aa = block.querySelectorAll('a.estimation');
+        var aa = block.querySelectorAll('a.review');
         var links = {};
         for (i = 0; i < aa.length; i++) {
             links[textHelper.innerText(aa[i].innerHTML)] = aa[i].href;
@@ -1117,20 +1123,22 @@ function MIProcessor() {
                 (result.bitDepth != 8 ? ' ' + result.bitDepth + ' bit' : '');
 
         var width = parseNumbers(video['Width'] || video['Ширина'])[0];
-        var heigth = parseNumbers(video['Height'] || video['Высота'])[0];
+        var height = parseNumbers(video['Height'] || video['Высота'])[0];
         var dar = video['Display aspect ratio'] || video['Соотношение сторон'];
-        result.resolution = width + 'x' + heigth + ' (' + dar + ')';
+        result.resolution = width + 'x' + height + ' (' + dar + ')';
 
         var scanType = video['Scan type'] || video['Тип развёртки'];
         if (scanType === 'Progressive' || scanType === 'Прогрессивная') {
-            result.scanType = heigth + 'p';
+            result.scanType = height + 'p';
         } else if (scanType === 'Interleave') {
-            result.scanType = heigth + 'i';
+            result.scanType = height + 'i';
+        } else {
+            result.scanType = height;
         }
 
         var frameRate = video['Frame rate'] || video['Частота кадров'];
         if (frameRate) {
-            frameRate = frameRate.split(' ')[0].replace(',', '.')
+            frameRate = frameRate.split(' ')[0].replace(',', '.');
             result.frameRate = '~' + frameRate + ' fps';
         }
 
@@ -1138,7 +1146,7 @@ function MIProcessor() {
         if (!bitrate) {
             var bppf = video['Bits/(Pixel*Frame)'] || video['Бит/(Пиксели*Кадры)'];
             if (bppf) {
-                bitrate = [bppf * width * heigth * frameRate, 'bps'];
+                bitrate = [bppf * width * height * frameRate, 'bps'];
                 if (bitrate[0] < 1000) {
                     //does nothing
                 } else if (bitrate[0] < 10 * 1000 * 1000) {
