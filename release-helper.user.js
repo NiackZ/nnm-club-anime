@@ -403,6 +403,7 @@ function WAHelper() {
         while (a.indexOf('_' + text) > 0 && a.indexOf(text + '_') > 0) {
             a = a.replace(a.substring(a.indexOf('_' + text) - 1, (a.indexOf(text + '_') + text.length + 1)), '');
         }
+        a = replaceAll(a, text);
         return a;
     }
 
@@ -434,6 +435,12 @@ function WAHelper() {
             var successful = document.execCommand('copy');
             var msg = successful ? 'successful' : 'unsuccessful';
             console.log('Copying text command was ' + msg);
+            if (!successful){
+            openDiv('<strong>Результат:</strong><br>' +
+                    '<p><font color=red>Скрипту не удалось скопировать текст автоматически. Сделайте это вручную.</font></p>'+
+                    '<textarea rows="30" cols="95" id="resultInfo" onclick="this.select()">' + text + '</textarea><br>' +
+                    '<table cellpadding=0 cellspacing=2 border=0>');
+            }
         } catch (err) {
             console.log('Oops, unable to copy');
         }
