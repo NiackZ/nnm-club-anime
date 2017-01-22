@@ -676,8 +676,8 @@ function NNMHelper() {
                 idx = 2;
             }
             table['Аудио'].input.value = audio;
-            table['Звук'].input[0].selectedIndex = idx;
-            table['Звук (для заголовка)'].input[0].selectedIndex = idx;
+            table['Язык озвучки'].input[0].selectedIndex = idx;
+            table['Язык озвучки (длязаголовка)'].input[0].selectedIndex = idx;
 
             var subsLang = langObj();
             for (i = 0; i < mi.text.length; i++) {
@@ -685,10 +685,10 @@ function NNMHelper() {
                 subsLang.inc(mi.text[i].lang);
             }
             if (subsLang.rus > 0) {
-                table['Язык субтитров'].input[0].selectedIndex = 3;
+                table['Субтитры'].input[0].selectedIndex = 3;
             }
             if (subsLang.eng > 0) {
-                table['Язык субтитров'].input[1].selectedIndex = 1;
+                table['Субтитры'].input[1].selectedIndex = 1;
             }
         }
 
