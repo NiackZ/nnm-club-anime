@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.20
+// @version       1.0.0.21
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -50,8 +50,8 @@ function WAHelper() {
             '[b]Качество видео:[/b] _QUALITY_\n' +
             '[b]Видео:[/b] _VIDEO_\n' +
             '_AUDIO_\n' +
-            '[b]Тип субтитров:[/b] Отключаемые (softsub)\n' +
-            '[b]Язык субтитров:[/b] _SUBSLINE_\n' +
+            '[b]Язык озвучки:[/b] _AUDIOLINE_\n' +
+            '[b]Субтитры:[/b] _SUBSLINE_\n' +
             '[b]Перевод:[/b] TRANSLATION\n' +
             '[brc][align=center][b]Скриншоты:[/b]\n' +
             'SCREENSHOTS\n' +
@@ -1080,9 +1080,9 @@ function MIProcessor() {
     function parseUnits(units) {
         if (units.indexOf('bps') == 0 || units.indexOf('бит/сек') == 0) {
             return 'bps';
-        } else if (units.indexOf('Kbps') == 0 || units.indexOf('Кбит/сек') == 0) {
+        } else if (units.indexOf('Kbps') == 0 || units.indexOf('kb/s') == 0 || units.indexOf('Кбит/сек') == 0) {
             return 'kbps';
-        } else if (units.indexOf('Mbps') == 0 || units.indexOf('Мбит/сек') == 0) {
+        } else if (units.indexOf('Mbps') == 0 || units.indexOf('Mb/s') == 0 || units.indexOf('Мбит/сек') == 0) {
             return 'Mbps';
         } else if (units.indexOf('bit') == 0 || units.indexOf('бит') == 0) {
             return 'b';
