@@ -677,7 +677,7 @@ function NNMHelper() {
             }
             table['Аудио'].input.value = audio;
             table['Язык озвучки'].input[0].selectedIndex = idx;
-            table['Язык озвучки (длязаголовка)'].input[0].selectedIndex = idx;
+            table['Язык озвучки (для заголовка)'].input[0].selectedIndex = idx;
 
             var subsLang = langObj();
             for (i = 0; i < mi.text.length; i++) {
