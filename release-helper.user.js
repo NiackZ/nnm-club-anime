@@ -50,7 +50,7 @@ function WAHelper() {
             '[b]Качество видео:[/b] _QUALITY_\n' +
             '[b]Видео:[/b] _VIDEO_\n' +
             '_AUDIO_\n' +
-            '[b]Язык озвучки:[/b] _AUDIOLINE_\n' +
+            '[b]Язык озвучки:[/b] _SOUNDLINE_\n' +
             '[b]Субтитры:[/b] _SUBSLINE_\n' +
             '[b]Перевод:[/b] TRANSLATION\n' +
             '[brc][align=center][b]Скриншоты:[/b]\n' +
