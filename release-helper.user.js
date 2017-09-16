@@ -2,25 +2,16 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.21
+// @version       1.0.0.22
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
 // @downloadURL   https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.user.js
-// @include       http://www.world-art.ru/animation/*
 // @match         http://www.world-art.ru/animation/*
-// @include       http://nnmclub.to/forum/release.php?what=anime_common*
-// @match         http://nnmclub.to/forum/release.php?what=anime_common*
-// @include       http://*.nnmclub.to/forum/release.php?what=anime_common*
-// @match         http://*.nnmclub.to/forum/release.php?what=anime_common*
-// @include       https://nnmclub.to/forum/release.php?what=anime_common*
-// @match         https://nnmclub.to/forum/release.php?what=anime_common*
-// @include       https://*.nnmclub.to/forum/release.php?what=anime_common*
-// @match         https://*.nnmclub.to/forum/release.php?what=anime_common*
-// @include       http://dsenxis5txr4zbxe.onion/forum/release.php?what=anime_common*
-// @match         http://dsenxis5txr4zbxe.onion/forum/release.php?what=anime_common*
-// @include       https://dsenxis5txr4zbxe.onion/forum/release.php?what=anime_common*
-// @match         https://dsenxis5txr4zbxe.onion/forum/release.php?what=anime_common*
+// @match         *://*.nnmclub.to/forum/release.php?what=anime_common*
+// @match         *://*.nnm-club.me/forum/release.php?what=anime_common*
+// @match         *://*.nnm-club.name/forum/release.php?what=anime_common*
+// @match         *://dsenxis5txr4zbxe.onion/forum/release.php?what=anime_common*
 // @grant         none
 // ==/UserScript==
 //
@@ -185,13 +176,16 @@ function WAHelper() {
 
         var text = '';
         if (data.names.jap) {
-            text += data.names.jap.replace(' | ', '\n') + '\n';
-        }
-        if (data.names.rus) {
-            text += data.names.rus.replace(' | ', '\n') + '\n';
+            text += replaceAll(data.names.jap, ' | ', '\n') + '\n';
         }
         if (data.names.eng) {
-            text += data.names.eng.replace(' | ', '\n') + '\n';
+            text += replaceAll(data.names.eng, ' | ', '\n') + '\n';
+        }
+        if (data.names.rus) {
+            text += replaceAll(data.names.rus, ' | ', '\n') + '\n';
+        }
+        if (data.names.oth) {
+            text += replaceAll(data.names.oth, ' | ', '\n') + '\n';
         }
         result = result.replace('_NAMES_', text);
 
@@ -207,14 +201,13 @@ function WAHelper() {
         var count = data.infoBlock['Количество'];
         var complete = data.infoBlock['Complete'];
         var shortType = data.infoBlock['Сокращённый тип'];
-        var header = '[' + data.names.year + ', ' + shortType +
+        var header = '[' + data.infoBlock['Год'] + ', ' + shortType +
                 (count > 1 ? ', ' + (complete ? '' : '1 из ') + count + ' эп.' +
                 (sp > 0 ? ' + ' + (complete ? '' : '1 из ') + sp + ' SP' : '') : '') + ']';
 
         result = result.replace('_GENRE_', data.infoBlock['Жанр']);
         result = result.replace('_TYPE_', data.infoBlock['Тип']);
-        result = result.replace('_DURATION_', count + ' эп. по ' + data.infoBlock['Продолжительность'] +
-                (sp > 0 ? ' + ' + sp + ' SP' : ''));
+        result = result.replace('_DURATION_', count + ' эп. по ' + data.infoBlock['Продолжительность'] + (sp > 0 ? ' + ' + sp + ' SP' : ''));
         result = result.replace('_COUNT_', (complete ? count : '1') + ' из ' + count);
         if (data.infoBlock['Выпуск']) {
             result = result.replace('_DATE_', data.infoBlock['Выпуск']);
@@ -259,12 +252,10 @@ function WAHelper() {
             var ep;
             var textFmt = '';
             var max = data.episodes[data.episodes.length - 1].number;
-            for (i = 0; i < data.episodes.length; i++) {
+            for (var i = 0; i < data.episodes.length; i++) {
                 ep = textHelper.padZero(data.episodes[i].number, max);
-                text += '' + ep + '. ' + data.episodes[i].name;
-                (i == max - 1) ? text += '' : text += '\n';
-                textFmt += '[b]' + ep + '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]';
-                (i == max - 1) ? textFmt += '' : textFmt += '\n';
+                text += '' + ep + '. ' + data.episodes[i].name + (i == max - 1 ? '' : '\n');
+                textFmt += '[b]' + ep + '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]' + (i == max - 1 ? '' : '\n');
             }
             result = result.replace('_EPISODESFMT_', textFmt);
             result = result.replace('_EPISODES_', text);
@@ -328,8 +319,7 @@ function WAHelper() {
 
         if (mi) {
             if (mi.general) {
-                result = result.replace('_DURATION_', count + ' эп. по ' + mi.general.duration.total + ' мин.' +
-                        (sp > 0 ? ' + ' + sp + ' SP' : ''));
+                result = result.replace('_DURATION_', count + ' эп. по ' + mi.general.duration.total + ' мин.' + (sp > 0 ? ' + ' + sp + ' SP' : ''));
             }
 
             var video = '';
@@ -337,7 +327,7 @@ function WAHelper() {
                 video = mi.video[0].string;
                 header += ' ' + mi.video[0].scanType + (mi.video[0].bitDepth != 8 ? ' ' + mi.video[0].bitDepth + 'bit' : '');
             } else {
-                for (i = 0; i < mi.video.length; i++) {
+                for (var i = 0; i < mi.video.length; i++) {
                     video += '#' + (i + 1) + ': ' + mi.video[i].string + '; ';
                 }
             }
@@ -354,15 +344,14 @@ function WAHelper() {
                 header += ' ' + (mi.audio[0].lang === 'jap' ? 'raw' : mi.audio[0].lang);
                 block = '[b]Аудио:[/b] ' + audio + ' | [b]Звук:[/b] ' + sound;
             } else {
-                for (i = 0; i < mi.audio.length; i++) {
+                for (var i = 0; i < mi.audio.length; i++) {
                     audio += '#' + (i + 1) + ': ' + mi.audio[i].string + '; ';
                     if (mi.audio[i].lang !== 'und') {
                         sound += '#' + (i + 1) + ': ' + mi.audio[i].language + '; ';
                     }
                     var lang = mi.audio[i].lang === 'jap' ? 'raw' : mi.audio[i].lang;
-                    block += '[b]Аудио #' + (i + 1) + ':[/b] ' + mi.audio[i].string +
-                            ' | [b]Звук:[/b] ' + mi.audio[i].language + '\n';
-                    header += (header.indexOf(lang) == -1 ? (i == 0 ? ' ' : '+') + lang : '');
+                    block += '[b]Аудио #' + (i + 1) + ':[/b] ' + mi.audio[i].string + ' | [b]Звук:[/b] ' + mi.audio[i].language + '\n';
+                    header += (header.indexOf(lang) == -1 ? (i === 0 ? ' ' : '+') + lang : '');
                 }
             }
             result = result.replace('_AUDIOLINE_', audio);
@@ -370,12 +359,12 @@ function WAHelper() {
             result = result.replace('_AUDIO_', block);
 
             var subs = '';
-            if (mi.text.length == 1) {
+            if (mi.text.length === 1) {
                 if (mi.text[0].lang !== 'und') {
                     subs = mi.text[0].language;
                 }
             } else {
-                for (i = 0; i < mi.text.length; i++) {
+                for (var i = 0; i < mi.text.length; i++) {
                     var language = mi.text[i].language;
                     if (mi.text[i].lang !== 'und') {
                         subs += (subs.indexOf(language) == -1 ? '#' + (i + 1) + ': ' + language + '; ' : '');
@@ -392,9 +381,10 @@ function WAHelper() {
         copyTextToClipboard(result);
     }
 
-    function replaceAll(a, text) {
-        while (a.indexOf(text) >= 0) {
-            a = a.replace(text, '');
+    function replaceAll(a, find, replace) {
+        if (!replace) replace = '';
+        while (a.indexOf(find) >= 0) {
+            a = a.replace(find, replace);
         }
         return a;
     }
@@ -567,16 +557,14 @@ function NNMHelper() {
         table['Название латиницей'].input.value = data.names.eng ? data.names.eng : '';
         table['Русское название'].input.value = data.names.rus ? data.names.rus : '';
         table['Оригинальное название'].input.value = data.names.jap ? data.names.jap : '';
-        table['Год выпуска'].input.value = data.names.year;
+        table['Год выпуска'].input.value = data.infoBlock['Год'];
         setOption(table['Тип'].input[0], data.infoBlock['Сокращённый тип']);
         table['Жанр'].input.value = data.infoBlock['Жанр'];
         var complete = data.infoBlock['Complete'];
         var count = data.infoBlock['Количество'];
         var sp = data.infoBlock['SP'];
-        table['Продолжительность'].input.value = (count > 1 ? count + ' эп. по ' : '') +
-                data.infoBlock['Продолжительность'] + (sp > 0 ? ' + ' + sp + ' SP' : '');
-        table['Количество серий'].input.value = (count > 1 ? (complete ? count : '1') + ' из ' + count : '') +
-                (sp > 0 ? ' + ' + (complete ? sp : '1') + ' SP из ' + sp : '');
+        table['Продолжительность'].input.value = (count > 1 ? count + ' эп. по ' : '') + data.infoBlock['Продолжительность'] + (sp > 0 ? ' + ' + sp + ' SP' : '');
+        table['Количество серий'].input.value = (count > 1 ? (complete ? count : '1') + ' из ' + count : '') + (sp > 0 ? ' + ' + (complete ? sp : '1') + ' SP из ' + sp : '');
         var text = data.infoBlock['Выпуск'];
         table['Дата выпуска'].input.value = text ? text : data.infoBlock['Премьера'];
         if (data.company) {
@@ -597,8 +585,7 @@ function NNMHelper() {
             text = '';
             var max = data.episodes[data.episodes.length - 1].number;
             for (i = 0; i < data.episodes.length; i++) {
-                text += '[b]' + textHelper.padZero(data.episodes[i].number, max) +
-                        '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]\n';
+                text += '[b]' + textHelper.padZero(data.episodes[i].number, max) + '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]\n';
             }
             table['Эпизоды'].input.value = text;
         }
@@ -659,7 +646,7 @@ function NNMHelper() {
                 audio = mi.audio[0].string;
                 audioLang.inc(mi.audio[0].lang);
             } else {
-                for (i = 0; i < mi.audio.length; i++) {
+                for (var i = 0; i < mi.audio.length; i++) {
                     console.log(mi.audio[i].lang + ' : ' + audioLang[mi.audio[i].lang]);
                     audio += '#' + (i + 1) + ': ' + mi.audio[i].string + ' [' + mi.audio[i].lang + ']; ';
                     audioLang.inc(mi.audio[i].lang);
@@ -680,7 +667,7 @@ function NNMHelper() {
             table['Язык озвучки (для заголовка)'].input[0].selectedIndex = idx;
 
             var subsLang = langObj();
-            for (i = 0; i < mi.text.length; i++) {
+            for (var i = 0; i < mi.text.length; i++) {
                 console.log(mi.text[i].lang + ' : ' + subsLang[mi.text[i].lang]);
                 subsLang.inc(mi.text[i].lang);
             }
@@ -765,10 +752,10 @@ function WAProcessor() {
     function loadData(page) {
         var blocks = page.querySelectorAll('td[align="left"]');
 
-        var names = getNames(blocks[1]);
-        var poster = getPoster(blocks[0]);
-        var company = getCompany(blocks[0]);
-        var infoBlock = getInfoBlock(blocks[1]);
+        var names = getNames(page, blocks);
+        var poster = getPoster(blocks);
+        var company = getCompany(blocks)
+        var infoBlock = getInfoBlock(blocks);
         var infoLinks = getInfoLinks(page);
         var description = getDescription(page);
         var notes = getNotes(page);
@@ -788,53 +775,45 @@ function WAProcessor() {
         }
     }
 
-    function getNames(block) {
-        var ee = block.querySelectorAll('font[size="3"]');
-        var names = (ee && ee.length > 0) ? textHelper.innerText(ee[0].parentNode.innerHTML) : '_NAMES_';
-        var year = (ee && ee.length > 1) ? textHelper.innerText(ee[1].innerHTML) : 'YEAR';
-        names = names.replace(/\[.+\]/g, '');
+  function getBlockValue(block) {
+    return block.parentNode.children[2].innerText;
+  }
 
-        var result = {jap: [], rus: [], eng: [], str: '', year: year};
-        var nn = names.split('\n');
-        for (var i = 0; i < nn.length; i++) {
-            var name = nn[i].trim();
-            var lang = textHelper.testLang(name);
-            if (lang.eng) {
-                result.eng.push(name);
-            } else if (lang.rus) {
-                result.rus.push(name);
-            } else {
-                result.jap.push(name);
-            }
-        }
-        toString(result, 'jap');
-        toString(result, 'rus');
-        toString(result, 'eng');
-        return result;
-
-        function toString(result, lang) {
-            if (result[lang].length > 0) {
-                var str = '';
-                for (var i = 0; i < result[lang].length; i++) {
-                    str += ' | ' + result[lang][i];
-                }
-                result[lang] = str.substring(3);
-                result['str'] += (result['str'].length > 0 ? ' | ' : '') + result[lang];
-            } else {
-                result[lang] = null;
-            }
-        }
+  function getNames(page, blocks) {
+    var result = {jap: '', rus: '', eng: '', oth: '', str: ''};
+    result.rus = page.querySelector('font[size="5"]').innerText;
+    for (var i = 1; i < blocks.length; i++) {
+      var block = blocks[i];
+      if (block.innerText === 'Названия (англ.)') {
+        result.eng = getBlockValue(block);
+      } else if (block.innerText === 'Названия (яп.)') {
+        result.jap = getBlockValue(block);
+      } else if (block.innerText === 'Названия (прочие)') {
+        result.oth = getBlockValue(block);
+      }
     }
+    if (result.jap.length > 0) {
+      result.str += ' | ' + result.jap;
+    }
+    if (result.eng.length > 0) {
+      result.str += ' | ' + result.eng;
+    } 
+    if (result.rus.length > 0) {
+      result.str += ' | ' + result.rus;
+    }
+    result.str = result.str.substring(3);
+    return result;
+  }
 
-    function getPoster(block) {
-        var img = block.querySelectorAll('img')[0];
+    function getPoster(blocks) {
+        var img = blocks[0].querySelectorAll('img')[0];
         if (img) {
             return img.src;
         }
     }
 
-    function getCompany(block) {
-        var img = block.querySelectorAll('img');
+    function getCompany(blocks) {
+        var img = blocks[0].querySelectorAll('img');
         if (img.length = 2 && img[1]) {
             var url = img[1].parentNode.href;
             var page = loadPage(url);
@@ -843,41 +822,57 @@ function WAProcessor() {
         }
     }
 
-    function getInfoBlock(block) {
-        var result = {};
-        //var info = textHelper.innerText(block.querySelector('font[size="2"]').innerHTML).split('\n');
-        var infos = block.querySelectorAll('td.review');
-        for (var i = 0; i < infos.length; i++) {
-            var info = textHelper.innerText(infos[i].innerHTML);
-            if (info.indexOf(':') > 0) {
-                var ss = info.split(':');
-                result[ss[0].trim()] = (ss[1].indexOf('|') > 0 ? ss[1].split('|')[0] : ss[1]).trim();
-            }
-        }
-        if (result['Тип']) {
-            var type = parseType(result['Тип']);
-            result['Тип'] = type.type;
-            result['Сокращённый тип'] = type.shortType;
-            result['Продолжительность'] = type.duration;
-            result['Количество'] = type.count;
-            result['SP'] = type.sp;
-            if (result['Премьера'] || (result['Выпуск'] && result['Выпуск'].indexOf(' по ') > -1)) {
-                result['Complete'] = true;
-            }
-        }
-        var aa = block.querySelectorAll('a.review');
-        var links = {};
-        for (i = 0; i < aa.length; i++) {
+  function getInfoBlock(blocks) {
+    var result = {};
+    result.links = {};
+    var tmp;
+    for (var i = 1; i < blocks.length; i++) {
+      var block = blocks[i];
+      if (block.innerText === 'Жанр') {
+        result['Жанр'] = getBlockValue(block);
+      } else if (block.innerText === 'Режиссёр') {
+        result['Режиссёр'] = getBlockValue(block);
+      } else if (block.innerText === 'Автор оригинала') {
+        result['Автор оригинала'] = getBlockValue(block);
+      } else if (block.innerText === 'Выпуск') {
+        result['Выпуск'] = getBlockValue(block);
+        tmp = result['Выпуск'].split('.');
+        result['Год'] = tmp[tmp.length - 1];
+        if (result['Выпуск'].indexOf(' по ') > -1) result['Complete'] = true;
+      } else if (block.innerText === 'Премьера') {
+        result['Премьера'] = getBlockValue(block);
+        tmp = result['Премьера'].split('.');
+        result['Год'] = tmp[tmp.length - 1];
+        result['Complete'] = true;
+      } else if (block.innerText === 'Производство') {
+        result['Производство'] = getBlockValue(block);
+      } else if (block.innerText === 'Тип') {
+        result['Тип'] = getBlockValue(block);
+        var type = parseType(result['Тип']);
+        result['Тип'] = type.type;
+        result['Сокращённый тип'] = type.shortType;
+        result['Продолжительность'] = type.duration;
+        result['Количество'] = type.count;
+        result['SP'] = type.sp;
+      }
+      getBlockLinks(block, result.links);
+    }
+    return result;
+
+    function getBlockLinks(block, links) {
+      if (block.parentNode.children[2]) {
+        var aa = block.parentNode.children[2].querySelectorAll('a.review');
+        for (var i = 0; i < aa.length; i++) {
             links[textHelper.innerText(aa[i].innerHTML)] = aa[i].href;
         }
-        result['links'] = links;
-        return result;
     }
+   }
+  }
 
-    function parseType(t) {
+  function parseType(t) {
         var type;
         var shortType;
-        var duration;
+        var duration = '25 мин.';
         var count = 1;
         var sp = 0;
         var tt = t.split(/[(),]/);// разбираем строку вида - ТВ (24 эп. + 2 спэшла), 25 мин. /  ТВ (>24 эп.), 25 мин.
