@@ -32,7 +32,6 @@ function WAHelper() {
         '_IFCOMPANY[b]Производство:[/b] студия _COMPANY_ IFCOMPANY_\n' +
         '_IFAUTHOR[b]Автор оригинала:[/b] _AUTHOR_ IFAUTHOR_\n' +
         '_IFDIRECTOR[b]Режиссер:[/b] _DIRECTOR_ IFDIRECTOR_\n' +
-        '_IFSCENARY[b]Сценарий:[/b] _SCENARY_ IFSCENARY_\n' +
         '[b]Ссылки:[/b] _INFOLINKS_\n' +
         '[hr]\n' +
         '[b]Описание:[/b]\n' +
@@ -70,6 +69,7 @@ function WAHelper() {
 
     function drawLinks() {
         var div = document.createElement('div');
+        div.id = 'waHelper_links';
         div.innerHTML = "<table cellpadding=0 cellspacing=2 border=0><tr>" +
             "<td width=110 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openTemplateDiv();'>Установить шаблон</a></td><td width=1 bgcolor=gray></td>" +
             "<td width=120 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openMediaInfoDiv();'>Задать MediaInfo</a></td><td width=1 bgcolor=gray></td>" +
@@ -90,8 +90,6 @@ function WAHelper() {
             '<b>_COMPANYNAME_</b>, <b>_COMPANYURL_</b> — название студии и ссылка по отдельности;<br>' +
             '<b>_AUTHOR_</b> — готовый BB-код ссылки на автора оригинала; ' +
             '<b>_AUTHORNAME_</b>, <b>_AUTHORURL_</b> — автор оригинала и ссылка по отдельности;<br>' +
-            '<b>_SCENARY_</b> — готовый BB-код ссылки на автора сценария; ' +
-            '<b>_SCENARYNAME_</b>, <b>_SCENARYURL_</b> — автор сценария и ссылка по отдельности;<br>' +
             '<b>_DIRECTOR_</b> — готовый BB-код ссылки на режиссёра; ' +
             '<b>_DIRECTORNAME_</b>, <b>_DIRECTORURL_</b> — режиссёр и ссылка по отдельности;<br>' +
             '<b>_INFOLINKS_</b> — готовый BB-код информационных ссылок одним блоком;<br>' +
@@ -104,8 +102,7 @@ function WAHelper() {
             '<b>_CROSSLINKSTBL_</b> — BB-код состава серии с оформлением таблицей;<br>' +
             '<br><b>Условия в шаблоне:</b><br>' +
             'Если переменная выбранного типа не была обнаружена, то всё, что находится внутри условия не будет использовано.<br>' +
-            '<b>_IFSCENARY IFSCENARY_</b> — Сценарий; <b>_IFDIRECTOR IFDIRECTOR_</b> — Режиссёр;<br>' +
-            '<b>_IFAUTHOR IFAUTHOR_</b> — Автор; <b>_IFCOMPANY IFCOMPANY_</b> — Компания;<br>' +
+            '<b>_IFDIRECTOR IFDIRECTOR_</b> — Режиссёр; <b>_IFAUTHOR IFAUTHOR_</b> — Автор; <b>_IFCOMPANY IFCOMPANY_</b> — Компания;<br>' +
             '<b>_IFEPISODES IFEPISODES_</b> — Эпизоды; <b>_IFNOTES IFNOTES_</b> — Справка; <b>_IFCROSS IFCROSS_</b> — Состав серии<br>' +
             '<br>Если задан отчёт <b>MediaInfo</b>, заполняются следующие поля:<br><br>' +
             '<b>_QUALITY_</b> — качество видео (если задано соответствующее значение);<br>' +
@@ -238,14 +235,6 @@ function WAHelper() {
         } else {
             result = replaceVar(result, 'IFDIRECTOR');
         }
-        text = data.infoBlock['Сценарий'];
-        if (text) {
-            result = result.replace('_SCENARYNAME_', text);
-            result = result.replace('_SCENARYURL_', data.infoBlock['links'][text]);
-            result = result.replace('_SCENARY_', '[url=' + data.infoBlock['links'][text] + ']' + text + '[/url]');
-        } else {
-            result = replaceVar(result, 'IFSCENARY');
-        }
         if (data.description) {
             result = result.replace('_DESCRIPTION_', data.description);
         }
@@ -262,7 +251,7 @@ function WAHelper() {
             for (var i = 0; i < data.episodes.length; i++) {
                 ep = textHelper.padZero(data.episodes[i].number, max);
                 text += '' + ep + '. ' + data.episodes[i].name + (i === max - 1 ? '' : '\n');
-                textFmt += '[b]' + ep + '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]' + (i === max - 1 ? '' : '\n');
+                textFmt += '[b]' + ep + '.[/b] [color=#008000]' + data.episodes[i].name + '[/color]' + (i === max - 1 ? '' : '\n');
             }
             result = result.replace('_EPISODESFMT_', textFmt.substring(0, textFmt.length - 1));
             result = result.replace('_EPISODES_', text.substring(0, text.length - 1));
@@ -304,8 +293,6 @@ function WAHelper() {
         result = result.replace('_INFOLINKS_', links);
 
         // IF Replacing
-        result = textHelper.replaceAll(result, "_IFSCENARY");
-        result = textHelper.replaceAll(result, "IFSCENARY_");
         result = textHelper.replaceAll(result, "_IFDIRECTOR");
         result = textHelper.replaceAll(result, "IFDIRECTOR_");
         result = textHelper.replaceAll(result, "_IFAUTHOR");
