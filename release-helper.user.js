@@ -631,10 +631,10 @@ function NNMHelper() {
                 subsLang.inc(mi.text[i].lang);
             }
             if (subsLang.rus > 0) {
-                table['Субтитры'].input[0].selectedIndex = 3;
+                table['Субтитры'].input[0].selectedIndex = 1;
             }
             if (subsLang.eng > 0) {
-                table['Субтитры'].input[1].selectedIndex = 1;
+                table['Субтитры'].input[1].selectedIndex = 2;
             }
         }
 
@@ -785,7 +785,7 @@ function WAProcessor() {
             } else if (block.innerText === 'Режиссёр') {
                 result['Режиссёр'] = getBlockValue(block);
             } else if (block.innerText === 'Автор оригинала') {
-                result['Автор оригинала'] = getBlockValue(block);
+                result['Автор оригинала'] = getBlockValue(block).split(' | ')[0];
             } else if (block.innerText === 'Выпуск') {
                 result['Выпуск'] = getBlockValue(block);
                 result['Дата'] = result['Выпуск'].split(' ')[1].replace('??', '31').replace('??','12');
