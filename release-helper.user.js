@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.23
+// @version       1.0.0.24
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -176,19 +176,30 @@ function WAHelper() {
 
     function applyTemplate(template, data, mi) {
         var result = template.replace('_POSTER_', data.poster);
-        result = result.replace('_STRINGNAMES_', data.names.str());
 
         var text = '';
-        if (data.names.jap) {
+        if (data.names.jap.length > 0) {
+            text += ' | ' + data.names.jap;
+        }
+        if (data.names.eng.length > 0) {
+            text += ' | ' + data.names.eng;
+        }
+        if (data.names.rus.length > 0) {
+            text += ' | ' + data.names.rus;
+        }
+        result = result.replace('_STRINGNAMES_', text.substring(3));
+
+        text = '';
+        if (data.names.jap.length > 0) {
             text += data.names.jap + '\n';
         }
-        if (data.names.eng) {
+        if (data.names.eng.length > 0) {
             text += data.names.eng + '\n';
         }
-        if (data.names.rus) {
+        if (data.names.rus.length > 0) {
             text += data.names.rus + '\n';
         }
-        if (data.names.oth) {
+        if (data.names.oth.length > 0) {
             text += data.names.oth + '\n';
         }
         result = result.replace('_NAMES_', text.substring(0, text.length - 1));
@@ -272,8 +283,8 @@ function WAHelper() {
             result = replaceVar(result, 'IFCROSS');
         }
 
-        result = result.replace('_WAURL_', document.location.href);
-        var links = '[url=' + document.location.href + ']World-Art[/url]';
+        result = result.replace('_WAURL_', data.infoLinks['WA']);
+        var links = '[url=' + data.infoLinks['WA'] + ']World-Art[/url]';
         if (data.infoLinks['ANN']) {
             result = result.replace('_ANNURL_', data.infoLinks['ANN']);
             links += ', [url=' + data.infoLinks['ANN'] + ']ANN[/url]';
@@ -721,7 +732,7 @@ function WAProcessor() {
     }
 
     function getNames(page, blocks) {
-        var result = {jap: '', rus: '', eng: '', oth: '', str: str};
+        var result = {jap: '', rus: '', eng: '', oth: ''};
         result.rus = page.querySelector('font[size="5"]').innerText;
         for (var i = 1; i < blocks.length; i++) {
             var block = blocks[i];
@@ -734,21 +745,6 @@ function WAProcessor() {
             }
         }
         return result;
-
-        function str() {
-            var result = '';
-            if (this.jap.length > 0) {
-                result += ' | ' + this.jap;
-            }
-            if (this.eng.length > 0) {
-                result += ' | ' + this.eng;
-            }
-            if (this.rus.length > 0) {
-                result += ' | ' + this.rus;
-            }
-            result = result.substring(3);
-            return result;
-        }
     }
 
     function getPoster(blocks) {
@@ -777,8 +773,10 @@ function WAProcessor() {
                 result['Жанр'] = getBlockValue(block);
             } else if (block.innerText === 'Режиссёр') {
                 result['Режиссёр'] = getBlockValue(block);
+                getBlockLinks(block, result.links);
             } else if (block.innerText === 'Автор оригинала') {
                 result['Автор оригинала'] = getBlockValue(block).split(' | ')[0];
+                getBlockLinks(block, result.links);
             } else if (block.innerText === 'Выпуск') {
                 result['Выпуск'] = getBlockValue(block);
                 result['Дата'] = result['Выпуск'].split(' ')[1].replace('??', '31').replace('??','12');
@@ -798,7 +796,6 @@ function WAProcessor() {
                 result['Количество'] = type.count;
                 result['SP'] = type.sp;
             }
-            getBlockLinks(block, result.links);
         }
         return result;
 
@@ -865,7 +862,7 @@ function WAProcessor() {
 
     function getEpisodes(page) {
         var result = [];
-        var fe = document.querySelectorAll('td[valign="top"]>font[size="2"]');
+        var fe = page.querySelectorAll('td[valign="top"]>font[size="2"]');
         if (fe.length > 0) {
             for (i = 1; i < fe.length; i++) {
                 result.push({'number': i, 'name': textHelper.innerText(fe[i].innerHTML)});
@@ -915,7 +912,7 @@ function WAProcessor() {
     }
 
     function getInfoLinks(page) {
-        var result = {};
+        var result = {WA: document.location.href};
         var links = page.querySelectorAll('a[target="_blank"]');
         for (var i = 0; i < links.length; i++) {
             var link = links[i];
