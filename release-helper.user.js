@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.22
+// @version       1.0.0.23
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -176,7 +176,7 @@ function WAHelper() {
 
     function applyTemplate(template, data, mi) {
         var result = template.replace('_POSTER_', data.poster);
-        result = result.replace('_STRINGNAMES_', data.names.str);
+        result = result.replace('_STRINGNAMES_', data.names.str());
 
         var text = '';
         if (data.names.jap) {
@@ -390,7 +390,8 @@ function WAHelper() {
         openMediaInfoDiv: openMediaInfoDiv,
         setMediaInfo: setMediaInfo,
         closeDiv: closeDiv,
-        process: process
+        process: process,
+        applyTemplate: applyTemplate
     };
 }
 
@@ -694,7 +695,7 @@ function WAProcessor() {
 
         var names = getNames(page, blocks);
         var poster = getPoster(blocks);
-        var company = getCompany(blocks)
+        var company = getCompany(blocks);
         var infoBlock = getInfoBlock(blocks);
         var infoLinks = getInfoLinks(page);
         var description = getDescription(page);
@@ -720,7 +721,7 @@ function WAProcessor() {
     }
 
     function getNames(page, blocks) {
-        var result = {jap: '', rus: '', eng: '', oth: '', str: ''};
+        var result = {jap: '', rus: '', eng: '', oth: '', str: str};
         result.rus = page.querySelector('font[size="5"]').innerText;
         for (var i = 1; i < blocks.length; i++) {
             var block = blocks[i];
@@ -732,17 +733,22 @@ function WAProcessor() {
                 result.oth = getBlockValue(block);
             }
         }
-        if (result.jap.length > 0) {
-            result.str += ' | ' + result.jap;
-        }
-        if (result.eng.length > 0) {
-            result.str += ' | ' + result.eng;
-        }
-        if (result.rus.length > 0) {
-            result.str += ' | ' + result.rus;
-        }
-        result.str = result.str.substring(3);
         return result;
+
+        function str() {
+            var result = '';
+            if (this.jap.length > 0) {
+                result += ' | ' + this.jap;
+            }
+            if (this.eng.length > 0) {
+                result += ' | ' + this.eng;
+            }
+            if (this.rus.length > 0) {
+                result += ' | ' + this.rus;
+            }
+            result = result.substring(3);
+            return result;
+        }
     }
 
     function getPoster(blocks) {
@@ -779,7 +785,7 @@ function WAProcessor() {
                 if (result['Выпуск'].indexOf(' по ') > -1) result['Complete'] = true;
             } else if (block.innerText === 'Премьера') {
                 result['Премьера'] = getBlockValue(block);
-                result['Дата'] = result['Премьера'].split(' ')[1].replace('??', '31').replace('??','12');
+                result['Дата'] = result['Премьера'].replace('??', '31').replace('??','12');
                 result['Complete'] = true;
             } else if (block.innerText === 'Производство') {
                 result['Производство'] = getBlockValue(block);
@@ -1294,7 +1300,8 @@ function TextHelper() {
 var script = document.createElement('script');
 var textContent = TextHelper.toString() + MIProcessor.toString();
 if (window.location.href.indexOf('world-art') > -1) {
-    textContent += WAHelper.toString() + WAProcessor.toString() + ' var waHelper = WAHelper(); waHelper.drawLinks(); ';
+    textContent += WAHelper.toString() + WAProcessor.toString() +
+        ' var waHelper = WAHelper(); ' + (!localStorage.guide ? ' waHelper.drawLinks(); ' : '');
     window.addEventListener('message', function (event) {
         if (event.data && event.data === 'load') {
             var pageData = WAProcessor().loadData(document);
