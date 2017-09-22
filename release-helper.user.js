@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.24
+// @version       1.0.0.25
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -171,7 +171,7 @@ function WAHelper() {
 
         var result = applyTemplate(localStorage.template || defaultTemplate, data, mi)
 
-        textHelper.copyToClipboard(result);
+        copyToClipboard(result);
     }
 
     function applyTemplate(template, data, mi) {
@@ -394,6 +394,46 @@ function WAHelper() {
         return a;
     }
 
+    function copyToClipboard(text) {
+        var textArea = document.createElement("textarea");
+        // Place in top-left corner of screen regardless of scroll position.
+        textArea.style.position = 'fixed';
+        textArea.style.top = 0;
+        textArea.style.left = 0;
+        // Ensure it has a small width and height. Setting to 1px / 1em
+        // doesn't work as this gives a negative w/h on some browsers.
+        textArea.style.width = '2em';
+        textArea.style.height = '2em';
+        // We don't need padding, reducing the size if it does flash render.
+        textArea.style.padding = 0;
+        // Clean up any borders.
+        textArea.style.border = 'none';
+        textArea.style.outline = 'none';
+        textArea.style.boxShadow = 'none';
+        // Avoid flash of white box if rendered for any reason.
+        textArea.style.background = 'transparent';
+
+        textArea.value = text;
+
+        document.body.appendChild(textArea);
+
+        textArea.select();
+        try {
+            var successful = document.execCommand('copy');
+            var msg = successful ? 'successful' : 'unsuccessful';
+            console.log('Copying text command was ' + msg);
+            if (!successful){
+                openDiv('<strong>Результат:</strong><br>' +
+                    '<p><font color=red>Скрипту не удалось скопировать текст автоматически. Сделайте это вручную.</font></p>'+
+                    '<textarea rows="30" cols="95" id="resultInfo" onclick="this.select()">' + text + '</textarea><br>' +
+                    '<table cellpadding=0 cellspacing=2 border=0>');
+            }
+        } catch (err) {
+            console.log('Oops, unable to copy');
+        }
+        document.body.removeChild(textArea);
+    }
+
     return {
         drawLinks: drawLinks,
         openTemplateDiv: openTemplateDiv,
@@ -402,7 +442,8 @@ function WAHelper() {
         setMediaInfo: setMediaInfo,
         closeDiv: closeDiv,
         process: process,
-        applyTemplate: applyTemplate
+        applyTemplate: applyTemplate,
+        copyToClipboard: copyToClipboard
     };
 }
 
@@ -704,8 +745,8 @@ function WAProcessor() {
     function loadData(page) {
         var blocks = page.querySelectorAll('td[align="left"]');
 
-        var names = getNames(page, blocks);
-        var poster = getPoster(blocks);
+        var names = getNames(blocks, textHelper.innerText(page.querySelector('font[size="5"]').innerHTML));
+        var poster = getPoster();
         var company = getCompany(blocks);
         var infoBlock = getInfoBlock(blocks);
         var infoLinks = getInfoLinks(page);
@@ -728,30 +769,30 @@ function WAProcessor() {
     }
 
     function getBlockValue(block) {
-        return block.parentNode.children[2].innerText;
+        return textHelper.innerText(block.parentNode.children[2].innerHTML).trim();
     }
 
-    function getNames(page, blocks) {
-        var result = {jap: '', rus: '', eng: '', oth: ''};
-        result.rus = page.querySelector('font[size="5"]').innerText;
+    function getNames(blocks, rus) {
+        var result = {jap: '', rus: rus, eng: '', oth: ''};
         for (var i = 1; i < blocks.length; i++) {
             var block = blocks[i];
-            if (block.innerText === 'Названия (англ.)') {
+            var blockText = textHelper.innerText(block.innerHTML).trim;
+            if (blockText === 'Названия (англ.)') {
                 result.eng = getBlockValue(block);
-            } else if (block.innerText === 'Названия (яп.)') {
+            } else if (blockText === 'Названия (яп.)') {
                 result.jap = getBlockValue(block);
-            } else if (block.innerText === 'Названия (прочие)') {
+            } else if (blockText === 'Названия (прочие)') {
                 result.oth = getBlockValue(block);
             }
         }
         return result;
     }
 
-    function getPoster(blocks) {
-        var img = blocks[0].querySelectorAll('img')[0];
-        if (img) {
-            return img.src;
-        }
+    function getPoster() {
+        var waUrl = document.location.href;
+        var id = Number(waUrl.split('=')[1]);
+        var upId = id - id % 1000 + 1000;
+        return waUrl.replace('animation.php?id=', 'img/' + upId + '/') + '/1.jpg'
     }
 
     function getCompany(blocks) {
@@ -769,25 +810,26 @@ function WAProcessor() {
         result.links = {};
         for (var i = 1; i < blocks.length; i++) {
             var block = blocks[i];
-            if (block.innerText === 'Жанр') {
+            var blockText = textHelper.innerText(block.innerHTML);
+            if (blockText === 'Жанр') {
                 result['Жанр'] = getBlockValue(block);
-            } else if (block.innerText === 'Режиссёр') {
+            } else if (blockText === 'Режиссёр') {
                 result['Режиссёр'] = getBlockValue(block);
                 getBlockLinks(block, result.links);
-            } else if (block.innerText === 'Автор оригинала') {
+            } else if (blockText === 'Автор оригинала') {
                 result['Автор оригинала'] = getBlockValue(block).split(' | ')[0];
                 getBlockLinks(block, result.links);
-            } else if (block.innerText === 'Выпуск') {
+            } else if (blockText === 'Выпуск') {
                 result['Выпуск'] = getBlockValue(block);
                 result['Дата'] = result['Выпуск'].split(' ')[1].replace('??', '31').replace('??','12');
                 if (result['Выпуск'].indexOf(' по ') > -1) result['Complete'] = true;
-            } else if (block.innerText === 'Премьера') {
+            } else if (blockText === 'Премьера') {
                 result['Премьера'] = getBlockValue(block);
                 result['Дата'] = result['Премьера'].replace('??', '31').replace('??','12');
                 result['Complete'] = true;
-            } else if (block.innerText === 'Производство') {
+            } else if (blockText === 'Производство') {
                 result['Производство'] = getBlockValue(block);
-            } else if (block.innerText === 'Тип') {
+            } else if (blockText === 'Тип') {
                 result['Тип'] = getBlockValue(block);
                 var type = parseType(result['Тип']);
                 result['Тип'] = type.type;
@@ -1223,46 +1265,6 @@ function TextHelper() {
         return str;
     }
 
-    function copyToClipboard(text) {
-        var textArea = document.createElement("textarea");
-        // Place in top-left corner of screen regardless of scroll position.
-        textArea.style.position = 'fixed';
-        textArea.style.top = 0;
-        textArea.style.left = 0;
-        // Ensure it has a small width and height. Setting to 1px / 1em
-        // doesn't work as this gives a negative w/h on some browsers.
-        textArea.style.width = '2em';
-        textArea.style.height = '2em';
-        // We don't need padding, reducing the size if it does flash render.
-        textArea.style.padding = 0;
-        // Clean up any borders.
-        textArea.style.border = 'none';
-        textArea.style.outline = 'none';
-        textArea.style.boxShadow = 'none';
-        // Avoid flash of white box if rendered for any reason.
-        textArea.style.background = 'transparent';
-
-        textArea.value = text;
-
-        document.body.appendChild(textArea);
-
-        textArea.select();
-        try {
-            var successful = document.execCommand('copy');
-            var msg = successful ? 'successful' : 'unsuccessful';
-            console.log('Copying text command was ' + msg);
-            if (!successful){
-                openDiv('<strong>Результат:</strong><br>' +
-                    '<p><font color=red>Скрипту не удалось скопировать текст автоматически. Сделайте это вручную.</font></p>'+
-                    '<textarea rows="30" cols="95" id="resultInfo" onclick="this.select()">' + text + '</textarea><br>' +
-                    '<table cellpadding=0 cellspacing=2 border=0>');
-            }
-        } catch (err) {
-            console.log('Oops, unable to copy');
-        }
-        document.body.removeChild(textArea);
-    }
-
     function testLang(text) {
         var result = {eng: false, rus: false, jap: false};
         if (text.replace(/[a-zA-Z0-9 _=!@#$%^&*\-\(\)\[\]\{\}|\\:;"\'\/?<>.,]/g, '').length === 0) {
@@ -1288,7 +1290,6 @@ function TextHelper() {
     return {
         innerText: innerText,
         replaceAll: replaceAll,
-        copyToClipboard: copyToClipboard,
         testLang: testLang,
         padZero: padZero
     }
