@@ -276,7 +276,7 @@ function WAHelper() {
         } else {
             result = replaceVar(result, 'IFNOTES');
         }
-        if (data.episodes.length > 0) {
+        if (data.episodes && data.episodes.length > 0) {
             text = '';
             var ep;
             var textFmt = '';
@@ -615,7 +615,7 @@ function NNMHelper() {
         if (data.description) {
             table['Описание'].input.value = data.description;
         }
-        if (data.episodes.length > 0) {
+        if (data.episodes && data.episodes.length > 0) {
             text = '';
             var max = data.episodes[data.episodes.length - 1].number;
             for (i = 0; i < data.episodes.length; i++) {
