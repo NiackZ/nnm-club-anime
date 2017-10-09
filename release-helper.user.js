@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.26
+// @version       1.0.0.27
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -42,9 +42,9 @@ function WAHelper() {
         '_AUDIO_\n' +
         '[b]Язык озвучки:[/b] _SOUNDLINE_\n' +
         '[b]Субтитры:[/b] _SUBSLINE_\n' +
-        '[b]Перевод:[/b] TRANSLATION\n' +
+        '[b]Перевод:[/b] _TRANSLATION_\n' +
         '[brc][align=center][b]Скриншоты:[/b]\n' +
-        'SCREENSHOTS\n' +
+        '_SCREENSHOTS_\n' +
         '[/align]\n' +
         '_IFEPISODES[hide=Эпизоды]\n' +
         '_EPISODESFMT_\n' +
@@ -61,7 +61,11 @@ function WAHelper() {
         '[align=center][b]Время раздачи:[/b] круглосуточно[/align]\n';
 
     var mediaInfo = '';
+    var description = '';
+    var screenshots = '';
+    var poster = '';
     var quality = '';
+    var translation = '';
 
     var textHelper = TextHelper();
     var waProcessor = WAProcessor();
@@ -72,7 +76,7 @@ function WAHelper() {
         div.id = 'waHelper_links';
         div.innerHTML = "<table cellpadding=0 cellspacing=2 border=0><tr>" +
             "<td width=110 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openTemplateDiv();'>Установить шаблон</a></td><td width=1 bgcolor=gray></td>" +
-            "<td width=120 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openMediaInfoDiv();'>Задать MediaInfo</a></td><td width=1 bgcolor=gray></td>" +
+            "<td width=120 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openMediaInfoDiv();'>Задать переменные</a></td><td width=1 bgcolor=gray></td>" +
             "<td width=140 height=40 align=center bgcolor=963D3D><a href='javascript:;' style=text-decoration:none onclick='waHelper.process();'><font color=white>Сгенерировать описание</font></a></td>" +
             "<td width=1 bgcolor=gray></td></tr></table>";
         var a = document.querySelector('a[style="text-decoration:none"]');
@@ -115,8 +119,8 @@ function WAHelper() {
             '<strong>Шаблон:</strong><br>' +
             '<textarea rows="12" cols="95" id="templateText">' +
             (localStorage.template ? localStorage.template : defaultTemplate) +
-            '</textarea><br>' +
-            "<table cellpadding=0 cellspacing=2 border=0><td width=80 height=30 align=center bgcolor=963D3D><a href='javascript:;' style=text-decoration:none onclick='waHelper.setTemplate();'><font color=white>Сохранить</font></a></td>");
+            '</textarea><br>',
+            'waHelper.setTemplate();');
     }
 
     function setTemplate() {
@@ -126,20 +130,30 @@ function WAHelper() {
     }
 
     function openMediaInfoDiv() {
-        openDiv('<strong>Отчёт Media Info:</strong><br>' +
-            '<textarea rows="30" cols="95" id="mediaInfo">' + mediaInfo + '</textarea><br>' +
-            '<b>Качество видео:</b> <input type="text" id="quality" width="200px" value="' + quality + '"><br>' +
-            "<table cellpadding=0 cellspacing=2 border=0><td width=80 height=30 align=center bgcolor=963D3D><a href='javascript:;' style=text-decoration:none onclick='waHelper.setMediaInfo();'><font color=white>Сохранить</font></a></td>");
+        openDiv('<strong>Описание:</strong><br>' +
+            '<textarea rows="5" cols="95" id="descriptionInput">' + description + '</textarea><br><br>' +
+            '<strong>Отчёт Media Info:</strong><br>' +
+            '<textarea rows="10" cols="95" id="mediaInfoInput">' + mediaInfo + '</textarea><br><br>' +
+            '<strong>Скриншоты:</strong><br>' +
+            '<textarea rows="10" cols="95" id="screenShotsInput">' + screenshots + '</textarea><br><br>' +
+            '<b>Качество видео:</b>&nbsp;<input type="text" id="qualityInput" width="400px" value="' + quality + '">&nbsp;' +
+            '<b>Постер:</b>&nbsp;<input type="text" id="posterInput" width="400px" value="' + poster + '">&nbsp;' +
+            '<b>Перевод:</b>&nbsp;<input type="text" id="translationInput" width="400px" value="' + translation + '"><br><br>',
+            'waHelper.setMediaInfo();');
     }
 
     function setMediaInfo() {
         var div = document.getElementById('helperDiv');
-        mediaInfo = div.querySelector('textarea#mediaInfo').value;
-        quality = div.querySelector('input#quality').value;
+        mediaInfo = div.querySelector('textarea#mediaInfoInput').value;
+        description = div.querySelector('textarea#descriptionInput').value;
+        screenshots = div.querySelector('textarea#screenShotsInput').value;
+        poster = div.querySelector('input#posterInput').value;
+        quality = div.querySelector('input#qualityInput').value;
+        translation = div.querySelector('input#translationInput').value;
         closeDiv(div);
     }
 
-    function openDiv(innerHTML) {
+    function openDiv(innerHTML, saveAction) {
         var div = document.createElement('div');
         div.innerHTML = '<div style="position: fixed; z-index: 100; width: 100%; height: 100%; left: 0; top: 0;" id="helperDiv">' +
             '   <div style="position: absolute; top: 0;left: 0; background-color: gray; filter: alpha(opacity=70);' +
@@ -148,7 +162,10 @@ function WAHelper() {
             '       <div style="box-shadow: 0 0 10px 1px black; width: 800px; background-color: white; padding: 20px; margin: 25px auto auto;">' +
             "<p style='text-align:right;'><a href='javascript:;' style=text-decoration:none onclick='waHelper.closeDiv();'><font color=red>X</font></a></p>" +
             innerHTML +
-            "<td width=1 bgcolor=gray></td><td width=70 height=30 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.closeDiv();'>Закрыть</a></td></table>" +
+            "<table cellpadding=0 cellspacing=2 border=0>" +
+            "   <td width=80 height=30 align=center bgcolor=963D3D><a href='javascript:;' style=text-decoration:none onclick='" + saveAction + "'><font color=white>Сохранить</font></a></td>" +
+            "   <td width=1 bgcolor=gray></td><td width=70 height=30 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.closeDiv();'>Закрыть</a></td>" +
+            "</table>" +
             '       </div>' +
             '   </div>' +
             '</div>';
@@ -167,7 +184,7 @@ function WAHelper() {
         var data = waProcessor.loadData(page);
         // console.log('data: ' + JSON.stringify(data));
         var mi = miProcessor.parseMediaInfo(mediaInfo);
-        // console.log('mi: ' + JSON.stringify(data));
+        // console.log('mi: ' + JSON.stringify(mi));
 
         var result = applyTemplate(localStorage.template || defaultTemplate, data, mi)
 
@@ -175,7 +192,7 @@ function WAHelper() {
     }
 
     function applyTemplate(template, data, mi) {
-        var result = template.replace('_POSTER_', data.poster);
+        var result = template.replace('_POSTER_', poster.length > 0 ? poster : data.poster);
 
         var text = '';
         if (data.names.jap.length > 0) {
@@ -246,15 +263,20 @@ function WAHelper() {
         } else {
             result = replaceVar(result, 'IFDIRECTOR');
         }
-        if (data.description) {
+        if (description.length > 0) {
+            result = result.replace('_DESCRIPTION_', description);
+        } else if (data.description) {
             result = result.replace('_DESCRIPTION_', data.description);
+        }
+        if (screenshots) {
+            result = result.replace('_SCREENSHOTS_', screenshots);
         }
         if (data.notes) {
             result = result.replace('_NOTES_', data.notes);
         } else {
             result = replaceVar(result, 'IFNOTES');
         }
-        if (data.episodes) {
+        if (data.episodes.length > 0) {
             text = '';
             var ep;
             var textFmt = '';
@@ -317,7 +339,7 @@ function WAHelper() {
         result = textHelper.replaceAll(result, "_IFNOTES");
         result = textHelper.replaceAll(result, "IFNOTES_");
 
-        if (quality) {
+        if (quality.length > 0) {
             result = result.replace('_QUALITY_', quality);
             header += ' ' + quality;
         }
@@ -377,6 +399,18 @@ function WAHelper() {
                     }
                 }
             }
+            var translate = '';
+            if (mi.general.filename && subs.length > 0) {
+                var ff = mi.general.filename.split(/[\[\]]/);
+                if (ff.length > 1) {
+                    translate += ff[1];
+                }
+            }
+            if (translation.length > 0) {
+                subs += '; Русские';
+                translate += (translate.length > 0 ? '; ' : '') + translation;
+            }
+            result = result.replace('_TRANSLATION_', translate);
             result = result.replace('_SUBSLINE_', textHelper.replaceAll(subs, 'кий', 'кие'));
             result = result.replace('_MEDIAINFO_', mediaInfo);
         }
@@ -581,7 +615,7 @@ function NNMHelper() {
         if (data.description) {
             table['Описание'].input.value = data.description;
         }
-        if (data.episodes) {
+        if (data.episodes.length > 0) {
             text = '';
             var max = data.episodes[data.episodes.length - 1].number;
             for (i = 0; i < data.episodes.length; i++) {
@@ -777,7 +811,7 @@ function WAProcessor() {
         var result = {jap: '', rus: rus, eng: '', oth: ''};
         for (var i = 1; i < blocks.length; i++) {
             var block = blocks[i];
-            var blockText = textHelper.innerText(block.innerHTML).trim;
+            var blockText = textHelper.innerText(block.innerHTML).trim();
             if (blockText === 'Названия (англ.)') {
                 result.eng = getBlockValue(block);
             } else if (blockText === 'Названия (яп.)') {
@@ -1087,8 +1121,13 @@ function MIProcessor() {
     }
 
     function parseGeneral(general) {
-        var duration = parseDuration(general);
-        return {duration: duration};
+        var result = {
+            filename: null,
+            duration: null
+        };
+        result.filename = (general['Complete name'] || general['']);
+        result.duration = parseDuration(general);
+        return result;
     }
 
     function parseVideo(video) {
