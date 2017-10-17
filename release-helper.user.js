@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.29
+// @version       1.0.0.30
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -55,17 +55,21 @@ function WAHelper() {
         '_IFCROSS[hide=Состав серии]\n' +
         '_CROSSLINKS_\n' +
         '[/hide]IFCROSS_\n' +
-        '[spoiler=Media Info на первую серию][code]\n' +
+        '[spoiler=Media Info на первую серию][pre]\n' +
         '_MEDIAINFO_\n' +
-        '[/code][/spoiler]\n' +
+        '[/pre][/spoiler]\n' +
         '[align=center][b]Время раздачи:[/b] круглосуточно[/align]\n';
 
-    var mediaInfo = '';
+    var episodeTemplate = localStorage.episode ? localStorage.episode : '[b]_NUM_[/b]. [color=#008000]_TXT_[/color]';
+
     var description = '';
+    var episodes = '';
+    var mediaInfo = '';
     var screenshots = '';
-    var poster = '';
     var quality = '';
+    var poster = '';
     var translation = '';
+    var altEpisodes = [];
 
     var textHelper = TextHelper();
     var waProcessor = WAProcessor();
@@ -117,7 +121,7 @@ function WAHelper() {
             '<b>_SOUNDLINE_</b> — язык звуковых дорожек одной строкой; <b>_SUBSLINE_</b> — язык субтитров одной строкой;<br>' +
             '<b>_HEADER_</b> — заголовок релиза с краткой технической информацией.<br><br>' +
             '<strong>Шаблон:</strong><br>' +
-            '<textarea rows="12" cols="95" id="templateText">' +
+            '<textarea rows=12 cols=95 id=templateText>' +
             (localStorage.template ? localStorage.template : defaultTemplate) +
             '</textarea><br>',
             'waHelper.setTemplate();');
@@ -131,26 +135,37 @@ function WAHelper() {
 
     function openMediaInfoDiv() {
         openDiv('<strong>Описание:</strong><br>' +
-            '<textarea rows="5" cols="95" id="descriptionInput">' + description + '</textarea><br><br>' +
+            '<textarea rows=5 cols=95 id=descriptionInput>' + description + '</textarea><br><br>' +
+            '<strong>Эпизоды:</strong><br>' +
+            '<textarea rows=5 cols=95 id=episodesInput>' + episodes + '</textarea><br><br>' +
             '<strong>Отчёт Media Info:</strong><br>' +
-            '<textarea rows="10" cols="95" id="mediaInfoInput">' + mediaInfo + '</textarea><br><br>' +
+            '<textarea rows=10 cols=95 id=mediaInfoInput>' + mediaInfo + '</textarea><br><br>' +
             '<strong>Скриншоты:</strong><br>' +
-            '<textarea rows="10" cols="95" id="screenShotsInput">' + screenshots + '</textarea><br><br>' +
-            '<b>Качество видео:</b>&nbsp;<input type="text" id="qualityInput" width="400px" value="' + quality + '">&nbsp;' +
-            '<b>Постер:</b>&nbsp;<input type="text" id="posterInput" width="400px" value="' + poster + '">&nbsp;' +
-            '<b>Перевод:</b>&nbsp;<input type="text" id="translationInput" width="400px" value="' + translation + '"><br><br>',
+            '<textarea rows=5 cols=95 id=screenShotsInput>' + screenshots + '</textarea><br><br>' +
+            '<b>Качество видео:</b>&nbsp;<input id=qualityInput width=400px value="' + quality + '">&nbsp;' +
+            '<b>Постер:</b>&nbsp;<input id=posterInput width=400px value="' + poster + '">&nbsp;' +
+            '<b>Перевод:</b>&nbsp;<input id=translationInput width=400px value="' + translation + '"><br><br>',
             'waHelper.setMediaInfo();');
     }
 
     function setMediaInfo() {
         var div = document.getElementById('helperDiv');
-        mediaInfo = div.querySelector('textarea#mediaInfoInput').value;
         description = div.querySelector('textarea#descriptionInput').value;
+        episodes = div.querySelector('textarea#episodesInput').value;
+        mediaInfo = div.querySelector('textarea#mediaInfoInput').value;
         screenshots = div.querySelector('textarea#screenShotsInput').value;
-        poster = div.querySelector('input#posterInput').value;
         quality = div.querySelector('input#qualityInput').value;
+        poster = div.querySelector('input#posterInput').value;
         translation = div.querySelector('input#translationInput').value;
         closeDiv(div);
+
+        if (episodes && episodes.length > 0) {
+            var splited = episodes.split('\n');
+            for (var i = 0; i < splited.length; i++) {
+                var matches = splited[i].match(/^\d*\.*\s+(.*)$/);
+                altEpisodes.push(matches && matches.length > 1 ? matches[1] : splited[i]);
+            }
+        }
     }
 
     function openDiv(innerHTML, saveAction) {
@@ -186,7 +201,7 @@ function WAHelper() {
         var mi = miProcessor.parseMediaInfo(mediaInfo);
         // console.log('mi: ' + JSON.stringify(mi));
 
-        var result = applyTemplate(localStorage.template || defaultTemplate, data, mi)
+        var result = applyTemplate(localStorage.template || defaultTemplate, data, mi);
 
         copyToClipboard(result);
     }
@@ -278,13 +293,12 @@ function WAHelper() {
         }
         if (data.episodes && data.episodes.length > 0) {
             text = '';
-            var ep;
             var textFmt = '';
-            var max = data.episodes[data.episodes.length - 1].number;
             for (var i = 0; i < data.episodes.length; i++) {
-                ep = textHelper.padZero(data.episodes[i].number, max);
-                text += '' + ep + '. ' + data.episodes[i].name + (i === max - 1 ? '' : '\n');
-                textFmt += '[b]' + ep + '.[/b] [color=#008000]' + data.episodes[i].name + '[/color]' + (i === max - 1 ? '' : '\n');
+                var ep = textHelper.padZero(data.episodes[i].number, data.episodes[data.episodes.length - 1].number);
+                var alt = i < altEpisodes.length ? altEpisodes[i] : '';
+                text += '' + ep + '. ' + data.episodes[i].name + (alt.length > 0 ? ' | ' + alt : '') + '\n';
+                textFmt += episodeTemplate.replace('_NUM_', ep).replace('_TXT_', data.episodes[i].name).replace('_ALT_', alt) + '\n';
             }
             result = result.replace('_EPISODESFMT_', textFmt.substring(0, textFmt.length - 1));
             result = result.replace('_EPISODES_', text.substring(0, text.length - 1));
@@ -326,18 +340,18 @@ function WAHelper() {
         result = result.replace('_INFOLINKS_', links);
 
         // IF Replacing
-        result = textHelper.replaceAll(result, "_IFDIRECTOR");
-        result = textHelper.replaceAll(result, "IFDIRECTOR_");
-        result = textHelper.replaceAll(result, "_IFAUTHOR");
-        result = textHelper.replaceAll(result, "IFAUTHOR_");
-        result = textHelper.replaceAll(result, "_IFCOMPANY");
-        result = textHelper.replaceAll(result, "IFCOMPANY_");
-        result = textHelper.replaceAll(result, "_IFEPISODES");
-        result = textHelper.replaceAll(result, "IFEPISODES_");
-        result = textHelper.replaceAll(result, "_IFCROSS");
-        result = textHelper.replaceAll(result, "IFCROSS_");
-        result = textHelper.replaceAll(result, "_IFNOTES");
-        result = textHelper.replaceAll(result, "IFNOTES_");
+        result = textHelper.replaceAll(result, '_IFDIRECTOR');
+        result = textHelper.replaceAll(result, 'IFDIRECTOR_');
+        result = textHelper.replaceAll(result, '_IFAUTHOR');
+        result = textHelper.replaceAll(result, 'IFAUTHOR_');
+        result = textHelper.replaceAll(result, '_IFCOMPANY');
+        result = textHelper.replaceAll(result, 'IFCOMPANY_');
+        result = textHelper.replaceAll(result, '_IFEPISODES');
+        result = textHelper.replaceAll(result, 'IFEPISODES_');
+        result = textHelper.replaceAll(result, '_IFCROSS');
+        result = textHelper.replaceAll(result, 'IFCROSS_');
+        result = textHelper.replaceAll(result, '_IFNOTES');
+        result = textHelper.replaceAll(result, 'IFNOTES_');
 
         if (quality.length > 0) {
             result = result.replace('_QUALITY_', quality);
@@ -460,7 +474,7 @@ function WAHelper() {
             if (!successful){
                 openDiv('<strong>Результат:</strong><br>' +
                     '<p><font color=red>Скрипту не удалось скопировать текст автоматически. Сделайте это вручную.</font></p>'+
-                    '<textarea rows="30" cols="95" id="resultInfo" onclick="this.select()">' + text + '</textarea><br>' +
+                    '<textarea rows=30 cols=95 id=resultInfo onclick="this.select()">' + text + '</textarea><br>' +
                     '<table cellpadding=0 cellspacing=2 border=0>');
             }
         } catch (err) {
@@ -509,11 +523,11 @@ function NNMHelper() {
     function drawLinks() {
         var l = table['Ссылки'].label;
         l.innerHTML = l.innerHTML + '<br>' +
-            '<input type="button" id="waBtn" style="width: 165px;" value="Заполнить описание" onclick="nnmHelper.getData();">' +
-            '<br><span id="waLogSpan"></span>';
+            '<input type=button id=waBtn style="width: 165px;" value="Заполнить описание" onclick="nnmHelper.getData();">' +
+            '<br><span id=waLogSpan></span>';
         l = table['Mediainfo'].label;
         l.innerHTML = l.innerHTML + '<br>' +
-            '<input type="button" style="width: 165px;" value="Заполнить тех.данные" onclick="nnmHelper.parseMI();">';
+            '<input type=button style="width: 165px;" value="Заполнить тех.данные" onclick="nnmHelper.parseMI();">';
         span = document.getElementById('waLogSpan');
         btn = document.getElementById('waBtn');
     }
@@ -832,7 +846,7 @@ function WAProcessor() {
 
     function getCompany(blocks) {
         var img = blocks[0].querySelectorAll('img');
-        if (img.length = 2 && img[1]) {
+        if (img.length === 2 && img[1]) {
             var url = img[1].parentNode.href;
             var page = loadPage(url);
             var name = textHelper.innerText(page.querySelector('font[size="3"]').innerHTML);
@@ -941,8 +955,8 @@ function WAProcessor() {
         var result = [];
         var fe = page.querySelectorAll('td[valign="top"]>font[size="2"]');
         if (fe.length > 0) {
-            for (i = 1; i < fe.length; i++) {
-                result.push({'number': i, 'name': textHelper.innerText(fe[i].innerHTML)});
+            for (i = 0; i < fe.length; i++) {
+                result.push({'number': i + 1, 'name': textHelper.innerText(fe[i].innerHTML)});
             }
             return result;
         } else {
