@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.30
+// @version       1.0.0.31
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -329,13 +329,13 @@ function WAHelper() {
             result = result.replace('_ANIDBURL_', data.infoLinks['AniDB']);
             links += ', [url=' + data.infoLinks['AniDB'] + ']AniDB[/url]';
         }
-        if (data.infoLinks['MyAnimeList']) {
-            result = result.replace('_MALURL_', data.infoLinks['MyAnimeList']);
-            links += ', [url=' + data.infoLinks['MyAnimeList'] + ']MyAnimeList[/url]';
+        if (data.infoLinks['MAL']) {
+            result = result.replace('_MALURL_', data.infoLinks['MAL']);
+            links += ', [url=' + data.infoLinks['MAL'] + ']MyAnimeList[/url]';
         }
-        if (data.infoLinks['Сетка вещания']) {
-            result = result.replace('_AIRURL_', data.infoLinks['Сетка вещания']);
-            links += ', [url=' + data.infoLinks['Сетка вещания'] + ']Сетка вещания[/url]';
+        if (data.infoLinks['SCHEDULE']) {
+            result = result.replace('_AIRURL_', data.infoLinks['SCHEDULE']);
+            links += ', [url=' + data.infoLinks['SCHEDULE'] + ']Сетка вещания[/url]';
         }
         result = result.replace('_INFOLINKS_', links);
 
@@ -1007,7 +1007,17 @@ function WAProcessor() {
         var links = page.querySelectorAll('a[target="_blank"]');
         for (var i = 0; i < links.length; i++) {
             var link = links[i];
-            result[textHelper.innerText(link.innerHTML)] = link.href;
+            if (link.href.indexOf('anidb') > 0) {
+                result['AniDB'] = link.href;
+            } else if (link.href.indexOf('animenewsnetwork') > 0) {
+                result['ANN'] = link.href;
+            } else if (link.href.indexOf('myanimelist') > 0) {
+                result['MAL'] = link.href;
+            } else if (link.href.indexOf('syoboi') > 0) {
+                result['SCHEDULE'] = link.href;
+            } else {
+                result[textHelper.innerText(link.innerHTML)] = link.href;
+            }
         }
         return result;
     }
