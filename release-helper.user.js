@@ -492,7 +492,8 @@ function WAHelper() {
         closeDiv: closeDiv,
         process: process,
         applyTemplate: applyTemplate,
-        copyToClipboard: copyToClipboard
+        copyToClipboard: copyToClipboard,
+        waProcessor: waProcessor
     };
 }
 
@@ -772,6 +773,8 @@ function WAProcessor() {
 
     var textHelper = TextHelper();
 
+    var fallback_description = '';
+
     function loadPage(url) {
         try {
             var xhr = new XMLHttpRequest();
@@ -940,9 +943,33 @@ function WAProcessor() {
         return {'type': type, 'shortType': shortType, 'duration': duration, 'count': count, 'sp': sp};
     }
 
+    function tryFallbackDescr(page){
+        var text = getTextFromNearTable(page.querySelectorAll('font[size="2"]'), 'Краткое содержание');
+        if (text && text.indexOf('есть описание') > -1) {
+            function getURLParameter(name) {
+                return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
+            }
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '//www.world-art.ru/animation/animation_update_synopsis.php?id='+getURLParameter('id'), false);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var docc = document.createElement('div');
+                    docc.innerHTML = xhr.responseText;
+                    var revision = docc.querySelector('.comment_block').querySelector('.review');
+                    if (revision.lastChild.tagName == 'I') revision.lastChild.remove();
+                    fallback_description = revision.innerText;
+                }
+            };
+            xhr.send();
+        }
+    }
+
     function getDescription(page) {
         var text = getTextFromNearTable(page.querySelectorAll('font[size="2"]'), 'Краткое содержание');
         if (text) {
+            if (text.indexOf('есть описание') > -1){
+                return fallback_description;
+            }
             return text.replace('при копировании текста активная ссылка на www.world-art.ru обязательна, подробнее о перепечатке текстов\n', '');
         }
     }
@@ -1024,7 +1051,8 @@ function WAProcessor() {
 
     return {
         loadPage: loadPage,
-        loadData: loadData
+        loadData: loadData,
+        tryFallbackDescr: tryFallbackDescr
     }
 }
 
@@ -1363,7 +1391,7 @@ var script = document.createElement('script');
 var textContent = TextHelper.toString() + MIProcessor.toString();
 if (window.location.href.indexOf('world-art') > -1) {
     textContent += WAHelper.toString() + WAProcessor.toString() +
-        ' var waHelper = WAHelper(); ' + (!localStorage.guide ? ' waHelper.drawLinks(); ' : '');
+        ' var waHelper = WAHelper(); ' + (!localStorage.guide ? ' waHelper.drawLinks(); waHelper.waProcessor.tryFallbackDescr(document);' : '');
     window.addEventListener('message', function (event) {
         if (event.data && event.data === 'load') {
             var pageData = WAProcessor().loadData(document);
