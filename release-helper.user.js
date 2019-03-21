@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.32
+// @version       1.0.0.33
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -829,9 +829,9 @@ function WAProcessor() {
         for (var i = 1; i < blocks.length; i++) {
             var block = blocks[i];
             var blockText = textHelper.innerText(block.innerHTML).trim();
-            if (blockText === 'Названия (англ.)') {
+            if (blockText === 'Название (англ.)') {
                 result.eng = getBlockValue(block);
-            } else if (blockText === 'Названия (яп.)') {
+            } else if (blockText === 'Название (ромадзи)') {
                 result.jap = getBlockValue(block);
             } else if (blockText === 'Названия (прочие)') {
                 result.oth = getBlockValue(block);
