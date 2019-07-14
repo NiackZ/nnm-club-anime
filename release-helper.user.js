@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.33
+// @version       1.0.0.34
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -518,19 +518,15 @@ function NNMHelper() {
     var frameReady = false;
     var retryCount = 0;
     var timeout = 0;
-    var span;
-    var btn;
 
     function drawLinks() {
         var l = table['Ссылки'].label;
         l.innerHTML = l.innerHTML + '<br>' +
             '<input type=button id=waBtn style="width: 165px;" value="Заполнить описание" onclick="nnmHelper.getData();">' +
             '<br><span id=waLogSpan></span>';
-        l = table['Mediainfo'].label;
+        l = table['MediaInfo'].label;
         l.innerHTML = l.innerHTML + '<br>' +
             '<input type=button style="width: 165px;" value="Заполнить тех.данные" onclick="nnmHelper.parseMI();">';
-        span = document.getElementById('waLogSpan');
-        btn = document.getElementById('waBtn');
     }
 
     function onFrameReady() {
@@ -541,8 +537,8 @@ function NNMHelper() {
     }
 
     function logWARequest(text, blockBtn) {
-        span.innerHTML = text;
-        btn.disabled = blockBtn;
+        document.getElementById('waLogSpan').innerHTML = text;
+        document.getElementById('waBtn').disabled = blockBtn;
     }
 
     function getData() {
@@ -671,7 +667,7 @@ function NNMHelper() {
     }
 
     function parseMI() {
-        var mi = table['Mediainfo'].input.value;
+        var mi = table['MediaInfo'].input.value;
         if (mi && mi.length > 0) {
             mi = miProcessor.parseMediaInfo(mi);
             console.log(mi);
