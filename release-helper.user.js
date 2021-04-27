@@ -599,9 +599,10 @@ function NNMHelper() {
         logWARequest('Ответ получен', false);
 
         table['Обложка'].input.value = data.poster;
-        table['Название латиницей'].input.value = data.names.eng ? data.names.eng : '';
-        table['Русское название'].input.value = data.names.rus ? data.names.rus : '';
         table['Оригинальное название'].input.value = data.names.jap ? data.names.jap : '';
+        table['Название латиницей'].input.value = data.names.oth ? data.names.oth : '';
+        table['Английское название'].input.value = data.names.eng ? data.names.eng : '';
+        table['Русское название'].input.value = data.names.rus ? data.names.rus : '';
         table['Год выпуска'].input.value = data.infoBlock['Дата'].split('.')[2];
         setOption(table['Тип'].input[0], data.infoBlock['Сокращённый тип']);
         table['Жанр'].input.value = data.infoBlock['Жанр'];
@@ -827,9 +828,9 @@ function WAProcessor() {
             var blockText = textHelper.innerText(block.innerHTML).trim();
             if (blockText === 'Название (англ.)') {
                 result.eng = getBlockValue(block);
-            } else if (blockText === 'Название (ромадзи)') {
+            } else if (blockText === 'Название (кандзи)') {
                 result.jap = getBlockValue(block);
-            } else if (blockText === 'Названия (прочие)') {
+            } else if (blockText === 'Название (ромадзи)') {
                 result.oth = getBlockValue(block);
             }
         }
