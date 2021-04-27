@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.34
+// @version       1.0.0.35
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -210,8 +210,8 @@ function WAHelper() {
         var result = template.replace('_POSTER_', poster.length > 0 ? poster : data.poster);
 
         var text = '';
-        if (data.names.jap.length > 0) {
-            text += ' | ' + data.names.jap;
+        if (data.names.oth.length > 0) {
+            text += ' | ' + data.names.oth;
         }
         if (data.names.eng.length > 0) {
             text += ' | ' + data.names.eng;
@@ -222,8 +222,8 @@ function WAHelper() {
         result = result.replace('_STRINGNAMES_', text.substring(3));
 
         text = '';
-        if (data.names.jap.length > 0) {
-            text += data.names.jap + '\n';
+        if (data.names.oth.length > 0) {
+            text += data.names.oth + '\n';
         }
         if (data.names.eng.length > 0) {
             text += data.names.eng + '\n';
@@ -231,8 +231,8 @@ function WAHelper() {
         if (data.names.rus.length > 0) {
             text += data.names.rus + '\n';
         }
-        if (data.names.oth.length > 0) {
-            text += data.names.oth + '\n';
+        if (data.names.jap.length > 0) {
+            text += data.names.jap + '\n';
         }
         result = result.replace('_NAMES_', text.substring(0, text.length - 1));
 
