@@ -677,7 +677,8 @@ function NNMHelper() {
             var videoSpec = '';
             if (mi.video.length === 1) {
                 video = mi.video[0].string;
-                videoSpec += (String(mi.video[0].scanType).endsWith('p') ? mi.video[0].scanType : mi.video[0].scanType+'p') + (mi.video[0].format.startsWith('HEVC') ? ' HEVC' : '') + (mi.video[0].bitDepth !== 8 ? ' ' + mi.video[0].bitDepth + 'bit' : '');
+                videoSpec += mi.video[0].scanType + (mi.video[0].format.startsWith('HEVC') ? ' HEVC' : '') +
+                    (mi.video[0].bitDepth !== 8 ? ' ' + mi.video[0].bitDepth + 'bit' : '');
             } else {
                 for (i = 0; i < mi.video.length; i++) {
                     video += '#' + (i + 1) + ': ' + mi.video[i].string + '; ';
@@ -1202,12 +1203,10 @@ function MIProcessor() {
         result.resolution = width + 'x' + height + ' (' + dar + ')';
 
         var scanType = video['Scan type'] || video['Тип развёртки'];
-        if (scanType === 'Progressive' || scanType === 'Прогрессивная') {
-            result.scanType = height + 'p';
-        } else if (scanType === 'Interleave') {
+        if (scanType === 'Interleave' || scanType === 'Черезстрочная') {
             result.scanType = height + 'i';
         } else {
-            result.scanType = height;
+            result.scanType = height + 'p';
         }
 
         var frameRate = video['Frame rate'] || video['Частота кадров'];
