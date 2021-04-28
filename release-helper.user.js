@@ -1196,7 +1196,7 @@ function MIProcessor() {
 
         result.format = (video['Format'] || video['Формат']) + ' (' +
             (video['Format profile'] || video['Профиль формата']) + ')' +
-            (result.bitDepth !== 8 ? ' ' + result.bitDepth + ' bit' : '');
+            (result.bitDepth !== 8 ? ' ' + result.bitDepth + '-bit' : '');
 
         var width = parseNumbers(video['Width'] || video['Ширина'])[0];
         var height = parseNumbers(video['Height'] || video['Высота'])[0];
