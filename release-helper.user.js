@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.0.0.37
+// @version       1.1.0
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -18,7 +18,7 @@
 
 function WAHelper() {
 
-    var defaultTemplate =
+    const defaultTemplate =
         '_STRINGNAMES_ _HEADER_\n' +
         '[align=center][color=#336699][size=22][b]\n' +
         '_NAMES_\n' +
@@ -60,31 +60,31 @@ function WAHelper() {
         '[/pre][/spoiler]\n' +
         '[align=center][b]Время раздачи:[/b] круглосуточно[/align]\n';
 
-    var episodeTemplate = localStorage.episode ? localStorage.episode : '[b]_NUM_[/b]. [color=#008000]_TXT_[/color]';
+    const episodeTemplate = localStorage.episode ? localStorage.episode : '[b]_NUM_[/b]. [color=#008000]_TXT_[/color]';
 
-    var description = '';
-    var episodes = '';
-    var mediaInfo = '';
-    var screenshots = '';
-    var quality = '';
-    var poster = '';
-    var translation = '';
-    var altEpisodes = [];
+    let description = '';
+    let episodes = '';
+    let mediaInfo = '';
+    let screenshots = '';
+    let quality = '';
+    let poster = '';
+    let translation = '';
+    const altEpisodes = [];
 
-    var textHelper = TextHelper();
-    var waProcessor = WAProcessor();
-    var miProcessor = MIProcessor();
+    const textHelper = TextHelper();
+    const waProcessor = WAProcessor();
+    const miProcessor = MIProcessor();
 
     function drawLinks() {
-        var div = document.createElement('div');
+        const div = document.createElement('div');
         div.id = 'waHelper_links';
         div.innerHTML = "<table cellpadding=0 cellspacing=2 border=0><tr>" +
             "<td width=110 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openTemplateDiv();'>Установить шаблон</a></td><td width=1 bgcolor=gray></td>" +
             "<td width=120 height=40 align=center bgcolor=eaeaea><a href='javascript:;' style=text-decoration:none onclick='waHelper.openMediaInfoDiv();'>Задать переменные</a></td><td width=1 bgcolor=gray></td>" +
             "<td width=140 height=40 align=center bgcolor=963D3D><a href='javascript:;' style=text-decoration:none onclick='waHelper.process();'><font color=white>Сгенерировать описание</font></a></td>" +
             "<td width=1 bgcolor=gray></td></tr></table>";
-        var a = document.querySelector('a[style="text-decoration:none"]');
-        var table = a.parentNode.parentNode.parentNode.parentNode;
+        const a = document.querySelector('a[style="text-decoration:none"]');
+        const table = a.parentNode.parentNode.parentNode.parentNode;
         table.parentNode.insertBefore(div, table.nextSibling);
     }
 
@@ -128,7 +128,7 @@ function WAHelper() {
     }
 
     function setTemplate() {
-        var div = document.getElementById('helperDiv');
+        const div = document.getElementById('helperDiv');
         localStorage.template = div.querySelector('textarea#templateText').value;
         closeDiv(div);
     }
@@ -149,7 +149,7 @@ function WAHelper() {
     }
 
     function setMediaInfo() {
-        var div = document.getElementById('helperDiv');
+        const div = document.getElementById('helperDiv');
         description = div.querySelector('textarea#descriptionInput').value;
         episodes = div.querySelector('textarea#episodesInput').value;
         mediaInfo = div.querySelector('textarea#mediaInfoInput').value;
@@ -160,16 +160,16 @@ function WAHelper() {
         closeDiv(div);
 
         if (episodes && episodes.length > 0) {
-            var splited = episodes.split('\n');
-            for (var i = 0; i < splited.length; i++) {
-                var matches = splited[i].match(/^\d*\.*\s+(.*)$/);
+            const splited = episodes.split('\n');
+            for (let i = 0; i < splited.length; i++) {
+                const matches = splited[i].match(/^\d*\.*\s+(.*)$/);
                 altEpisodes.push(matches && matches.length > 1 ? matches[1] : splited[i]);
             }
         }
     }
 
     function openDiv(innerHTML, saveAction) {
-        var div = document.createElement('div');
+        const div = document.createElement('div');
         div.innerHTML = '<div style="position: fixed; z-index: 100; width: 100%; height: 100%; left: 0; top: 0;" id="helperDiv">' +
             '   <div style="position: absolute; top: 0;left: 0; background-color: gray; filter: alpha(opacity=70);' +
             ' -moz-opacity: 0.7; opacity: 0.7; z-index: 200; width: 100%; height: 100%"></div>' +
@@ -195,21 +195,21 @@ function WAHelper() {
     }
 
     function process() {
-        var page = document.body;
-        var data = waProcessor.loadData(page);
+        const page = document.body;
+        const data = waProcessor.loadData(page);
         // console.log('data: ' + JSON.stringify(data));
-        var mi = miProcessor.parseMediaInfo(mediaInfo);
+        const mi = miProcessor.parseMediaInfo(mediaInfo);
         // console.log('mi: ' + JSON.stringify(mi));
 
-        var result = applyTemplate(localStorage.template || defaultTemplate, data, mi);
+        const result = applyTemplate(localStorage.template || defaultTemplate, data, mi);
 
         copyToClipboard(result);
     }
 
     function applyTemplate(template, data, mi) {
-        var result = template.replace('_POSTER_', poster.length > 0 ? poster : data.poster);
+        let result = template.replace('_POSTER_', poster.length > 0 ? poster : data.poster);
 
-        var text = '';
+        let text = '';
         if (data.names.oth.length > 0) {
             text += ' | ' + data.names.oth;
         }
@@ -244,11 +244,11 @@ function WAHelper() {
             result = replaceVar(result, 'IFCOMPANY');
         }
 
-        var sp = data.infoBlock['SP'];
-        var count = data.infoBlock['Количество'];
-        var complete = data.infoBlock['Complete'];
-        var shortType = data.infoBlock['Сокращённый тип'];
-        var header = '[' + data.infoBlock['Дата'].split('.')[2] + ', ' + shortType +
+        const sp = data.infoBlock['SP'];
+        const count = data.infoBlock['Количество'];
+        const complete = data.infoBlock['Complete'];
+        const shortType = data.infoBlock['Сокращённый тип'];
+        let header = '[' + data.infoBlock['Дата'].split('.')[2] + ', ' + shortType +
             (count > 1 ? ', ' + (complete ? '' : '1 из ') + count + ' эп.' +
                 (sp > 0 ? ' + ' + (complete ? '' : '1 из ') + sp + ' SP' : '') : '') + ']';
 
@@ -293,10 +293,10 @@ function WAHelper() {
         }
         if (data.episodes && data.episodes.length > 0) {
             text = '';
-            var textFmt = '';
-            for (var i = 0; i < data.episodes.length; i++) {
-                var ep = textHelper.padZero(data.episodes[i].number, data.episodes[data.episodes.length - 1].number);
-                var alt = i < altEpisodes.length ? altEpisodes[i] : '';
+            let textFmt = '';
+            for (let i = 0; i < data.episodes.length; i++) {
+                const ep = textHelper.padZero(data.episodes[i].number, data.episodes[data.episodes.length - 1].number);
+                const alt = i < altEpisodes.length ? altEpisodes[i] : '';
                 text += '' + ep + '. ' + data.episodes[i].name + (alt.length > 0 ? ' | ' + alt : '') + '\n';
                 textFmt += episodeTemplate.replace('_NUM_', ep).replace('_TXT_', data.episodes[i].name).replace('_ALT_', alt) + '\n';
             }
@@ -308,8 +308,8 @@ function WAHelper() {
 
         if (data.crossLinks && data.crossLinks.length > 0) {
             text = '';
-            var textTbl = '[table][align=center][b]Название[/b][/align][mcol]Релизы\n';
-            for (var i = 0; i < data.crossLinks.length; i++) {
+            let textTbl = '[table][align=center][b]Название[/b][/align][mcol]Релизы\n';
+            for (let i = 0; i < data.crossLinks.length; i++) {
                 text += data.crossLinks[i] + '\n';
                 textTbl += '[row]' + data.crossLinks[i] + ' [col]\n';
             }
@@ -320,7 +320,7 @@ function WAHelper() {
         }
 
         result = result.replace('_WAURL_', data.infoLinks['WA']);
-        var links = '[url=' + data.infoLinks['WA'] + ']World-Art[/url]';
+        let links = '[url=' + data.infoLinks['WA'] + ']World-Art[/url]';
         if (data.infoLinks['ANN']) {
             result = result.replace('_ANNURL_', data.infoLinks['ANN']);
             links += ', [url=' + data.infoLinks['ANN'] + ']ANN[/url]';
@@ -363,21 +363,21 @@ function WAHelper() {
                 result = result.replace('_DURATION_', count + ' эп. по ' + mi.general.duration.total + ' мин.' + (sp > 0 ? ' + ' + sp + ' SP' : ''));
             }
 
-            var video = '';
+            let video = '';
             if (mi.video.length === 1) {
                 video = mi.video[0].string;
                 header += ' ' + mi.video[0].scanType + (mi.video[0].format.startsWith('HEVC') ? ' HEVC' : '') +
                     (mi.video[0].bitDepth !== 8 ? ' ' + mi.video[0].bitDepth + '-bit' : '');
             } else {
-                for (var i = 0; i < mi.video.length; i++) {
+                for (let i = 0; i < mi.video.length; i++) {
                     video += '#' + (i + 1) + ': ' + mi.video[i].string + '; ';
                 }
             }
             result = result.replace('_VIDEO_', video);
 
-            var audio = '';
-            var sound = '';
-            var block = '';
+            let audio = '';
+            let sound = '';
+            let block = '';
             if (mi.audio.length === 1) {
                 audio = mi.audio[0].string;
                 if (mi.audio[0].lang !== 'und') {
@@ -386,12 +386,12 @@ function WAHelper() {
                 header += ' ' + (mi.audio[0].lang === 'jap' ? 'raw' : mi.audio[0].lang);
                 block = '[b]Аудио:[/b] ' + audio + ' | [b]Звук:[/b] ' + sound;
             } else {
-                for (var i = 0; i < mi.audio.length; i++) {
+                for (let i = 0; i < mi.audio.length; i++) {
                     audio += '#' + (i + 1) + ': ' + mi.audio[i].string + '; ';
                     if (mi.audio[i].lang !== 'und') {
                         sound += '#' + (i + 1) + ': ' + mi.audio[i].language + '; ';
                     }
-                    var lang = mi.audio[i].lang === 'jap' ? 'raw' : mi.audio[i].lang;
+                    const lang = mi.audio[i].lang === 'jap' ? 'raw' : mi.audio[i].lang;
                     block += '[b]Аудио #' + (i + 1) + ':[/b] ' + mi.audio[i].string + ' | [b]Звук:[/b] ' + mi.audio[i].language + '\n';
                     header += (header.indexOf(lang) === -1 ? (i === 0 ? ' ' : '+') + lang : '');
                 }
@@ -401,22 +401,22 @@ function WAHelper() {
             result = result.replace('_SOUNDLINE_', sound);
             result = result.replace('_AUDIO_', block);
 
-            var subs = '';
+            let subs = '';
             if (mi.text.length === 1) {
                 if (mi.text[0].lang !== 'und') {
                     subs = mi.text[0].language;
                 }
             } else {
-                for (var i = 0; i < mi.text.length; i++) {
-                    var language = mi.text[i].language;
+                for (let i = 0; i < mi.text.length; i++) {
+                    const language = mi.text[i].language;
                     if (mi.text[i].lang !== 'und') {
                         subs += (subs.indexOf(language) === -1 ? '#' + (i + 1) + ': ' + language + '; ' : '');
                     }
                 }
             }
-            var translate = '';
+            let translate = '';
             if (mi.general.filename && subs.length > 0) {
-                var ff = mi.general.filename.split(/[\[\]]/);
+                const ff = mi.general.filename.split(/[\[\]]/);
                 if (ff.length > 1) {
                     translate += ff[1];
                 }
@@ -445,17 +445,17 @@ function WAHelper() {
     }
 
     function copyToClipboard(text) {
-        var textArea = document.createElement("textarea");
+        const textArea = document.createElement("textarea");
         // Place in top-left corner of screen regardless of scroll position.
         textArea.style.position = 'fixed';
-        textArea.style.top = 0;
-        textArea.style.left = 0;
+        textArea.style.top = '0';
+        textArea.style.left = '0';
         // Ensure it has a small width and height. Setting to 1px / 1em
         // doesn't work as this gives a negative w/h on some browsers.
         textArea.style.width = '2em';
         textArea.style.height = '2em';
         // We don't need padding, reducing the size if it does flash render.
-        textArea.style.padding = 0;
+        textArea.style.padding = '0';
         // Clean up any borders.
         textArea.style.border = 'none';
         textArea.style.outline = 'none';
@@ -469,12 +469,12 @@ function WAHelper() {
 
         textArea.select();
         try {
-            var successful = document.execCommand('copy');
-            var msg = successful ? 'successful' : 'unsuccessful';
+            const successful = document.execCommand('copy');
+            const msg = successful ? 'successful' : 'unsuccessful';
             console.log('Copying text command was ' + msg);
-            if (!successful){
+            if (!successful) {
                 openDiv('<strong>Результат:</strong><br>' +
-                    '<p><font color=red>Скрипту не удалось скопировать текст автоматически. Сделайте это вручную.</font></p>'+
+                    '<p><font color=red>Скрипту не удалось скопировать текст автоматически. Сделайте это вручную.</font></p>' +
                     '<textarea rows=30 cols=95 id=resultInfo onclick="this.select()">' + text + '</textarea><br>' +
                     '<table cellpadding=0 cellspacing=2 border=0>');
             }
@@ -493,35 +493,31 @@ function WAHelper() {
         closeDiv: closeDiv,
         process: process,
         applyTemplate: applyTemplate,
-        copyToClipboard: copyToClipboard,
-        waProcessor: waProcessor
+        copyToClipboard: copyToClipboard
     };
 }
 
 function NNMHelper() {
 
-    var textHelper = TextHelper();
-    var miProcessor = MIProcessor();
+    const pageHelper = PageHelper();
+    const textHelper = TextHelper();
+    const waProcessor = WAProcessor();
+    const miProcessor = MIProcessor();
 
-    var table = {};
-    var cells = document.querySelectorAll('td.row1[align="right"]');
-    for (var i = 0; i < cells.length; i++) {
-        var cell = cells[i];
-        var name = textHelper.innerText(cell.innerHTML).split(':')[0].trim().replace('\n', '');
-        var input = cell.parentNode.querySelector('td.row2 input');
+    const table = {};
+    const cells = document.querySelectorAll('td.row1[align="right"]');
+    for (let i = 0; i < cells.length; i++) {
+        const cell = cells[i];
+        const name = textHelper.innerText(cell.innerHTML).split(':')[0].trim().replace('\n', '');
+        let input = cell.parentNode.querySelector('td.row2 input');
         if (!input) input = cell.parentNode.querySelector('td.row2 textarea');
         if (!input) input = cell.parentNode.querySelectorAll('td.row2 select');
         table[name] = {'label': cell, 'input': input};
     }
     console.log(table);
 
-    var waFrame;
-    var frameReady = false;
-    var retryCount = 0;
-    var timeout = 0;
-
     function drawLinks() {
-        var l = table['Ссылки'].label;
+        let l = table['Ссылки'].label;
         l.innerHTML = l.innerHTML + '<br>' +
             '<input type=button id=waBtn style="width: 165px;" value="Заполнить описание" onclick="nnmHelper.getData();">' +
             '<br><span id=waLogSpan></span>';
@@ -530,49 +526,24 @@ function NNMHelper() {
             '<input type=button style="width: 165px;" value="Заполнить тех.данные" onclick="nnmHelper.parseMI();">';
     }
 
-    function onFrameReady() {
-        clearTimeout(timeout);
-        frameReady = true;
-        retryCount = 0;
-        getData();
-    }
-
     function logWARequest(text, blockBtn) {
         document.getElementById('waLogSpan').innerHTML = text;
         document.getElementById('waBtn').disabled = blockBtn;
     }
 
     function getData() {
-        var url = table['Ссылки'].input.value;
+        const url = table['Ссылки'].input.value;
         if (url.indexOf('world-art') === -1) {
             logWARequest('Укажите ссылку на WA!', false);
             return;
         }
-        if (waFrame && waFrame.src !== url) {
-            document.body.removeChild(waFrame);
-            waFrame = null;
-            frameReady = false;
-            retryCount = 0;
-            setTimeout(clearData, 100);
-        }
-        logWARequest('Ожидаю ответа...', true);
-        if (waFrame && frameReady) {
-            waFrame.contentWindow.postMessage('load', '*');
-        } else {
-            if (!waFrame) {
-                waFrame = createIFrame(url);
-            }
-            if (!frameReady) {
-                if (retryCount < 10) {
-                    retryCount += 1;
-                    console.log('Waiting for WA...');
-                    timeout = setTimeout(getData, 1000);
-                } else {
-                    logWARequest('Нет ответа от WA', false);
-                    retryCount = 0;
-                }
-            }
-        }
+
+        clearData();
+        logWARequest('Ожидаю ответа...', false);
+        const page = pageHelper.loadPage(url)
+        const data = waProcessor.loadData(page, url);
+        // console.log(data);
+        process(data)
     }
 
     function clearData() {
@@ -607,12 +578,14 @@ function NNMHelper() {
         table['Год выпуска'].input.value = data.infoBlock['Дата'].split('.')[2];
         setOption(table['Тип'].input[0], data.infoBlock['Сокращённый тип']);
         table['Жанр'].input.value = data.infoBlock['Жанр'];
-        var complete = data.infoBlock['Complete'];
-        var count = data.infoBlock['Количество'];
-        var sp = data.infoBlock['SP'];
-        table['Продолжительность'].input.value = (count > 1 ? count + ' эп. по ' : '') + data.infoBlock['Продолжительность'] + (sp > 0 ? ' + ' + sp + ' SP' : '');
-        table['Количество серий'].input.value = (count > 1 ? (complete ? count : '1') + ' из ' + count : '') + (sp > 0 ? ' + ' + (complete ? sp : '1') + ' SP из ' + sp : '');
-        var text = data.infoBlock['Выпуск'];
+        const complete = data.infoBlock['Complete'];
+        const count = data.infoBlock['Количество'];
+        const sp = data.infoBlock['SP'];
+        table['Продолжительность'].input.value = (count > 1 ? count + ' эп. по ' : '') +
+            data.infoBlock['Продолжительность'] + (sp > 0 ? ' + ' + sp + ' SP' : '');
+        table['Количество серий'].input.value = (count > 1 ? (complete ? count : '1') + ' из ' + count : '') +
+            (sp > 0 ? ' + ' + (complete ? sp : '1') + ' SP из ' + sp : '');
+        let text = data.infoBlock['Выпуск'];
         table['Дата выпуска'].input.value = text ? text : data.infoBlock['Премьера'];
         if (data.company) {
             table['Производство'].input.value = 'Студия [url=' + data.company.url + ']' + data.company.name + '[/url]';
@@ -630,14 +603,15 @@ function NNMHelper() {
         }
         if (data.episodes && data.episodes.length > 0) {
             text = '';
-            var max = data.episodes[data.episodes.length - 1].number;
-            for (i = 0; i < data.episodes.length; i++) {
-                text += '[b]' + textHelper.padZero(data.episodes[i].number, max) + '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]\n';
+            const max = data.episodes[data.episodes.length - 1].number;
+            for (let i = 0; i < data.episodes.length; i++) {
+                text += '[b]' + textHelper.padZero(data.episodes[i].number, max) +
+                    '.[/b] [color=#336699]' + data.episodes[i].name + '[/color]\n';
             }
             table['Эпизоды'].input.value = text;
         }
 
-        var notes = '[b]Дополнительные ссылки:[/b]\n';
+        let notes = '[b]Дополнительные ссылки:[/b]\n';
         text = '';
         if (data.infoLinks['ANN']) {
             text += '[url=' + data.infoLinks['ANN'] + ']ANN[/url]';
@@ -651,56 +625,57 @@ function NNMHelper() {
         if (data.infoLinks['Сетка вещания']) {
             text += (text.length === 0 ? '' : ', ') + '[url=' + data.infoLinks['Сетка вещания'] + ']Сетка вещания[/url]';
         }
-        notes += text + '\n[hr]\n[color=red]После обработки введённой информации визардом, вынести ссылки из-под спойлера ' +
-            'и разместить их после ссылки на World-Art.[/color]\n[hr]\n';
+        notes += text + '\n[hr]\n[color=red]После обработки введённой информации визардом, ' +
+            'вынести ссылки из-под спойлера и разместить их после ссылки на World-Art.[/color]\n[hr]\n';
 
         if (data.notes) {
             notes += '[hide=Справка]' + data.notes + '[/hide]\n';
         }
         if (data.crossLinks && data.crossLinks.length > 0) {
             text = '';
-            for (i = 0; i < data.crossLinks.length; i++) {
+            for (let i = 0; i < data.crossLinks.length; i++) {
                 text += '\n' + data.crossLinks[i];
             }
             notes += '[hide=Состав серии]' + text + '[/hide]';
         }
-        notes += '\n[hr][color=red]Вложенные спойлеры также нужно вынести из-под спойлера с доп. информацией, а пустой спойлер убрать.[/color]';
+        notes += '\n[hr][color=red]Вложенные спойлеры также нужно вынести из-под спойлера с доп. информацией, ' +
+            'а пустой спойлер убрать.[/color]';
         table['Дополнительная информация'].input.value = notes;
     }
 
     function parseMI() {
-        var mi = table['MediaInfo'].input.value;
+        let mi = table['MediaInfo'].input.value;
         if (mi && mi.length > 0) {
             mi = miProcessor.parseMediaInfo(mi);
             console.log(mi);
 
-            var video = '';
-            var videoSpec = '';
+            let video = '';
+            let videoSpec = '';
             if (mi.video.length === 1) {
                 video = mi.video[0].string;
                 videoSpec += mi.video[0].scanType + (mi.video[0].format.startsWith('HEVC') ? ' HEVC' : '') +
                     (mi.video[0].bitDepth !== 8 ? ' ' + mi.video[0].bitDepth + '-bit' : '');
             } else {
-                for (i = 0; i < mi.video.length; i++) {
+                for (let i = 0; i < mi.video.length; i++) {
                     video += '#' + (i + 1) + ': ' + mi.video[i].string + '; ';
                 }
             }
             table['Видео'].input.value = video;
             table['Характеристики видео(для заголовка)'].input.value = videoSpec;
 
-            var audio = '';
-            var audioLang = langObj();
+            let audio = '';
+            const audioLang = langObj();
             if (mi.audio.length === 1) {
                 audio = mi.audio[0].string;
                 audioLang.inc(mi.audio[0].lang);
             } else {
-                for (var i = 0; i < mi.audio.length; i++) {
+                for (let i = 0; i < mi.audio.length; i++) {
                     console.log(mi.audio[i].lang + ' : ' + audioLang[mi.audio[i].lang]);
                     audio += '#' + (i + 1) + ': ' + mi.audio[i].string + ' [' + mi.audio[i].lang + ']; ';
                     audioLang.inc(mi.audio[i].lang);
                 }
             }
-            var idx = 5;
+            let idx = 5;
             if (audioLang.jap > 0 && audioLang.rus > 0) {
                 idx = 3;
             } else if (audioLang.jap > 0 && audioLang.eng > 0) {
@@ -714,8 +689,8 @@ function NNMHelper() {
             table['Язык озвучки'].input[0].selectedIndex = idx;
             table['Язык озвучки (для заголовка)'].input[0].selectedIndex = idx;
 
-            var subsLang = langObj();
-            for (var i = 0; i < mi.text.length; i++) {
+            const subsLang = langObj();
+            for (let i = 0; i < mi.text.length; i++) {
                 console.log(mi.text[i].lang + ' : ' + subsLang[mi.text[i].lang]);
                 subsLang.inc(mi.text[i].lang);
             }
@@ -741,8 +716,8 @@ function NNMHelper() {
     }
 
     function setOption(selectElement, value) {
-        var options = selectElement.options;
-        for (var i = 0; i < options.length; i++) {
+        const options = selectElement.options;
+        for (let i = 0; i < options.length; i++) {
             if (textHelper.innerText(options[i].innerHTML) === value) {
                 selectElement.selectedIndex = i;
                 return true;
@@ -751,16 +726,7 @@ function NNMHelper() {
         return false;
     }
 
-    function createIFrame(url) {
-        var frame = document.createElement('iframe');
-        frame.style.display = 'none';
-        frame.src = url;
-        document.body.appendChild(frame);
-        return frame;
-    }
-
     return {
-        onFrameReady: onFrameReady,
         drawLinks: drawLinks,
         getData: getData,
         process: process,
@@ -770,41 +736,21 @@ function NNMHelper() {
 
 function WAProcessor() {
 
-    var textHelper = TextHelper();
+    const pageHelper = PageHelper();
+    const textHelper = TextHelper();
 
-    var fallback_description = '';
+    function loadData(page, url = document.location.href) {
+        const blocks = page.querySelectorAll('td[align="left"]');
 
-    function loadPage(url) {
-        try {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', url, false);
-            xhr.send("");
-            //console.log('Загружена страница: ' + url);
-
-            var hidden = document.body.appendChild(document.createElement("div"));
-            hidden.style.display = 'none';
-            hidden.innerHTML = /<body[^>]*>([\s\S]+)<\/body>/i.exec(xhr.responseText + "</center></body></html>")[1];
-            document.body.removeChild(hidden);
-
-            return hidden;
-        } catch (e) {
-            console.warn('Не удалось загрузить страницу: ' + url, e.message);
-            return null;
-        }
-    }
-
-    function loadData(page) {
-        var blocks = page.querySelectorAll('td[align="left"]');
-
-        var names = getNames(blocks, textHelper.innerText(page.querySelector('font[size="5"]').innerHTML));
-        var poster = getPoster();
-        var company = getCompany(blocks);
-        var infoBlock = getInfoBlock(blocks);
-        var infoLinks = getInfoLinks(page);
-        var description = getDescription(page);
-        var notes = getNotes(page);
-        var episodes = getEpisodes(page);
-        var crossLinks = getCrosslinks(page);
+        const names = getNames(blocks, textHelper.innerText(page.querySelector('font[size="5"]').innerHTML));
+        const poster = getPoster(url);
+        const company = getCompany(blocks);
+        const infoBlock = getInfoBlock(blocks);
+        const infoLinks = getInfoLinks(page, url);
+        const description = getDescription(page);
+        const notes = getNotes(page);
+        const episodes = getEpisodes(page);
+        const crossLinks = getCrosslinks(page);
 
         return {
             'names': names,
@@ -824,10 +770,10 @@ function WAProcessor() {
     }
 
     function getNames(blocks, rus) {
-        var result = {jap: '', rus: rus, eng: '', oth: ''};
-        for (var i = 1; i < blocks.length; i++) {
-            var block = blocks[i];
-            var blockText = textHelper.innerText(block.innerHTML).trim();
+        const result = {jap: '', rus: rus, eng: '', oth: ''};
+        for (let i = 1; i < blocks.length; i++) {
+            const block = blocks[i];
+            const blockText = textHelper.innerText(block.innerHTML).trim();
             if (blockText === 'Название (англ.)') {
                 result.eng = getBlockValue(block);
             } else if (blockText === 'Название (кандзи)') {
@@ -839,29 +785,28 @@ function WAProcessor() {
         return result;
     }
 
-    function getPoster() {
-        var waUrl = document.location.href;
-        var id = Number(waUrl.split('=')[1]);
-        var upId = id - id % 1000 + 1000;
+    function getPoster(waUrl) {
+        const id = Number(waUrl.split('=')[1]);
+        const upId = id - id % 1000 + 1000;
         return waUrl.replace('animation.php?id=', 'img/' + upId + '/') + '/1.jpg'
     }
 
     function getCompany(blocks) {
-        var img = blocks[0].querySelectorAll('img');
+        const img = blocks[0].querySelectorAll('img');
         if (img.length === 2 && img[1]) {
-            var url = img[1].parentNode.href;
-            var page = loadPage(url);
-            var name = textHelper.innerText(page.querySelector('font[size="3"]').innerHTML);
-            return {'name': name, 'url': url};
+            const company = {'name': '', 'url': img[1].parentNode.href};
+            const page = pageHelper.loadPage(company['url'])
+            company['name'] = textHelper.innerText(page.querySelector('font[size="3"]').innerHTML);
+            return company;
         }
     }
 
     function getInfoBlock(blocks) {
-        var result = {};
+        const result = {};
         result.links = {};
-        for (var i = 1; i < blocks.length; i++) {
-            var block = blocks[i];
-            var blockText = textHelper.innerText(block.innerHTML);
+        for (let i = 1; i < blocks.length; i++) {
+            const block = blocks[i];
+            const blockText = textHelper.innerText(block.innerHTML);
             if (blockText === 'Жанр') {
                 result['Жанр'] = getBlockValue(block);
             } else if (blockText === 'Режиссёр') {
@@ -872,17 +817,17 @@ function WAProcessor() {
                 getBlockLinks(block, result.links);
             } else if (blockText === 'Выпуск') {
                 result['Выпуск'] = getBlockValue(block);
-                result['Дата'] = result['Выпуск'].split(' ')[1].replace('??', '31').replace('??','12');
+                result['Дата'] = result['Выпуск'].split(' ')[1].replace('??', '31').replace('??', '12');
                 if (result['Выпуск'].indexOf(' по ') > -1) result['Complete'] = true;
             } else if (blockText === 'Премьера') {
                 result['Премьера'] = getBlockValue(block);
-                result['Дата'] = result['Премьера'].replace('??', '31').replace('??','12');
+                result['Дата'] = result['Премьера'].replace('??', '31').replace('??', '12');
                 result['Complete'] = true;
             } else if (blockText === 'Производство') {
                 result['Производство'] = getBlockValue(block);
             } else if (blockText === 'Тип') {
                 result['Тип'] = getBlockValue(block);
-                var type = parseType(result['Тип']);
+                const type = parseType(result['Тип']);
                 result['Тип'] = type.type;
                 result['Сокращённый тип'] = type.shortType;
                 result['Продолжительность'] = type.duration;
@@ -894,8 +839,8 @@ function WAProcessor() {
 
         function getBlockLinks(block, links) {
             if (block.parentNode.children[2]) {
-                var aa = block.parentNode.children[2].querySelectorAll('a.review');
-                for (var i = 0; i < aa.length; i++) {
+                const aa = block.parentNode.children[2].querySelectorAll('a.review');
+                for (let i = 0; i < aa.length; i++) {
                     links[textHelper.innerText(aa[i].innerHTML)] = aa[i].href;
                 }
             }
@@ -903,20 +848,20 @@ function WAProcessor() {
     }
 
     function parseType(t) {
-        var type;
-        var shortType;
-        var duration = '25 мин.';
-        var count = 1;
-        var sp = 0;
-        var tt = t.split(/[(),]/);// разбираем строку вида - ТВ (24 эп. + 2 спэшла), 25 мин. /  ТВ (>24 эп.), 25 мин.
+        let type;
+        let shortType;
+        let duration = '25 мин.';
+        let count = 1;
+        let sp = 0;
+        let tt = t.split(/[(),]/);// разбираем строку вида - ТВ (24 эп. + 2 спэшла), 25 мин. /  ТВ (>24 эп.), 25 мин.
         type = tt[0].trim();
         if (tt.length > 1) {
-            var last = tt[tt.length - 1];
+            const last = tt[tt.length - 1];
             if (last.indexOf('мин') > 0) {
                 duration = last.trim();
             }
             if (tt[1].indexOf('эп') > 0) {
-                var s = tt[1];
+                let s = tt[1];
                 if (s.indexOf('+') > 0) {
                     tt = s.split('+');
                     s = tt[0].trim();
@@ -942,34 +887,18 @@ function WAProcessor() {
         return {'type': type, 'shortType': shortType, 'duration': duration, 'count': count, 'sp': sp};
     }
 
-    function tryFallbackDescr(page){
-        var text = getTextFromNearTable(page.querySelectorAll('font[size="2"]'), 'Краткое содержание');
-        if (text && text.indexOf('есть описание') > -1) {
-            function getURLParameter(name) {
-                return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search) || [null, ''])[1].replace(/\+/g, '%20')) || null;
-            }
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', '//www.world-art.ru/animation/animation_update_synopsis.php?id='+getURLParameter('id'), false);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4 && xhr.status === 200) {
-                    var docc = document.createElement('div');
-                    docc.innerHTML = xhr.responseText;
-                    var revision = docc.querySelector('.comment_block').querySelector('.review');
-                    if (revision.lastChild.tagName == 'I') revision.lastChild.remove();
-                    fallback_description = revision.innerText;
-                }
-            };
-            xhr.send();
-        }
-    }
-
     function getDescription(page) {
-        var text = getTextFromNearTable(page.querySelectorAll('font[size="2"]'), 'Краткое содержание');
-        if (text) {
-            if (text.indexOf('есть описание') > -1){
-                return fallback_description;
+        const nearTable = getNearTable(page.querySelectorAll('font[size="2"]'), 'Краткое содержание');
+        if (nearTable) {
+            const text = textHelper.innerText(nearTable.innerHTML);
+            if (text.indexOf('есть описание') > -1) {
+                const page_ = pageHelper.loadPage(nearTable.querySelector('a').href);
+                const review = page_.querySelector('.comment_block').querySelector('.review');
+                if (review.lastChild.tagName === 'I') review.lastChild.remove();
+                return review.innerText;
             }
-            return text.replace('при копировании текста активная ссылка на www.world-art.ru обязательна, подробнее о перепечатке текстов\n', '');
+            return text.replace('при копировании текста активная ссылка на www.world-art.ru обязательна, ' +
+                'подробнее о перепечатке текстов\n', '');
         }
     }
 
@@ -978,20 +907,20 @@ function WAProcessor() {
     }
 
     function getEpisodes(page) {
-        var result = [];
-        var fe = page.querySelectorAll('td[valign="top"]>font[size="2"]');
+        const result = [];
+        const fe = page.querySelectorAll('td[valign="top"]>font[size="2"]');
         if (fe.length > 0) {
-            for (i = 0; i < fe.length; i++) {
+            for (let i = 0; i < fe.length; i++) {
                 result.push({'number': i + 1, 'name': textHelper.innerText(fe[i].innerHTML)});
             }
             return result;
         } else {
-            var text = getTextFromNearTable(page.querySelectorAll('font[size="2"]'), 'Эпизоды');
+            const text = getTextFromNearTable(page.querySelectorAll('font[size="2"]'), 'Эпизоды');
             if (text) {
-                var tt = text.split('\n');
-                for (var i = 0; i < tt.length; i++) {
+                const tt = text.split('\n');
+                for (let i = 0; i < tt.length; i++) {
                     if (tt[i].indexOf('. ') > 0) {
-                        var ss = tt[i].split('. ');
+                        const ss = tt[i].split('. ');
                         result.push({'number': parseInt(ss[0]), 'name': ss[1]});
                     }
                 }
@@ -1001,13 +930,13 @@ function WAProcessor() {
     }
 
     function getCrosslinks(page) {
-        var text;
-        var pp = page.querySelectorAll('p.review');
-        for (var i = 0; i < pp.length; i++) {
+        let text;
+        const pp = page.querySelectorAll('p.review');
+        for (let i = 0; i < pp.length; i++) {
             if (textHelper.innerText(pp[i].innerHTML).indexOf('Серия состоит из') >= 0) {
                 text = textHelper.innerText(pp[i].parentNode.innerHTML).replace(/ #/g, '\n#');
-                var result = [];
-                var ss = text.split('\n');
+                const result = [];
+                const ss = text.split('\n');
                 for (i = 0; i < ss.length; i++) {
                     if (ss[i].indexOf('#') >= 0) {
                         result.push(ss[i]);
@@ -1018,21 +947,24 @@ function WAProcessor() {
         }
     }
 
-    function getTextFromNearTable(fe, text) {
-        for (var i = 0; i < fe.length; i++) {
+    function getNearTable(fe, text) {
+        for (let i = 0; i < fe.length; i++) {
             if (textHelper.innerText(fe[i].innerHTML).indexOf(text) > -1) {
-                return textHelper.innerText(
-                    fe[i].parentNode.parentNode.parentNode.parentNode.parentNode.nextSibling.nextSibling.innerHTML);
+                return fe[i].parentNode.parentNode.parentNode.parentNode.parentNode.nextSibling.nextSibling;
             }
         }
-
     }
 
-    function getInfoLinks(page) {
-        var result = {WA: document.location.href};
-        var links = page.querySelectorAll('a[target="_blank"]');
-        for (var i = 0; i < links.length; i++) {
-            var link = links[i];
+    function getTextFromNearTable(fe, text) {
+        const nearTable = getNearTable(fe, text);
+        if (nearTable) return textHelper.innerText(nearTable.innerHTML);
+    }
+
+    function getInfoLinks(page, waUrl) {
+        const result = {WA: waUrl};
+        const links = page.querySelectorAll('a[target="_blank"]');
+        for (let i = 0; i < links.length; i++) {
+            const link = links[i];
             if (link.href.indexOf('anidb') > 0) {
                 result['AniDB'] = link.href;
             } else if (link.href.indexOf('animenewsnetwork') > 0) {
@@ -1049,9 +981,7 @@ function WAProcessor() {
     }
 
     return {
-        loadPage: loadPage,
-        loadData: loadData,
-        tryFallbackDescr: tryFallbackDescr
+        loadData: loadData
     }
 }
 
@@ -1062,28 +992,28 @@ function MIProcessor() {
             return;
         }
 
-        var mi = mediaInfo.split('\n');
+        const mi = mediaInfo.split('\n');
 
-        var parts = [];
-        var start = 0;
-        var end = 0;
+        const parts = [];
+        let start = 0;
+        let end = 0;
         do {
             end = mi.indexOf("", start);
-            var part = mi.slice(start, (end === -1 ? mi.length : end));
+            const part = mi.slice(start, (end === -1 ? mi.length : end));
             start = end + 1;
-            var infoPart = {'name': part[0]};
-            for (var i = 1; i < part.length; i++) {
-                var ss = part[i].split(' : ');
+            const infoPart = {'name': part[0]};
+            for (let i = 1; i < part.length; i++) {
+                const ss = part[i].split(' : ');
                 infoPart[ss[0].trim()] = ss[1].trim();
             }
             parts.push(infoPart);
         } while (end > -1);
 
-        var general;
-        var video = [];
-        var audio = [];
-        var text = [];
-        for (i = 0; i < parts.length; i++) {
+        let general;
+        const video = [];
+        const audio = [];
+        const text = [];
+        for (let i = 0; i < parts.length; i++) {
             if (parts[i].name) {
                 if (parts[i].name === 'General' || parts[i].name === 'Общее') {
                     general = parseGeneral(parts[i]);
@@ -1101,11 +1031,11 @@ function MIProcessor() {
     }
 
     function parseDuration(object) {
-        var duration = {hours: 0, minutes: 0, total: 0};
-        var text;
+        const duration = {hours: 0, minutes: 0, total: 0};
+        let text;
         if (object['Duration']) {
             text = object['Duration'].split(' ');
-            for (var i = 0; i < text.length; i++) {
+            for (let i = 0; i < text.length; i++) {
                 if (text[i].indexOf('h') > 0) {
                     duration.hours = parseInt(text[i].split('h')[0]);
                 } else if (text[i].indexOf('mn') > 0) {
@@ -1114,8 +1044,8 @@ function MIProcessor() {
             }
         } else if (object['Продолжительность']) {
             text = object['Продолжительность'].split('.');
-            for (i = 0; i < text.length; i++) {
-                var ss = text[i].trim().split(' ');
+            for (let i = 0; i < text.length; i++) {
+                const ss = text[i].trim().split(' ');
                 if (ss.length === 2) {
                     if (ss[1] === 'ч') {
                         duration.hours = parseInt(ss[0]);
@@ -1131,7 +1061,7 @@ function MIProcessor() {
 
     function parseNumbers(numbers) {
         if (numbers) {
-            var pp = numbers.split(' ');
+            const pp = numbers.split(' ');
             if (pp.length === 2) {
                 return [parseFloat(pp[0].replace(',', '.')), parseUnits(pp[1])];
             } else if (pp.length === 3) {
@@ -1162,7 +1092,7 @@ function MIProcessor() {
         } else if (units.indexOf('Hz') === 0 || units.indexOf('Гц') === 0) {
             return 'Hz';
         } else if (units.indexOf('KHz') === 0 || units.indexOf('КГц') === 0 ||
-            units.indexOf('kHz') === 0 || units.indexOf('кГц') === 0 ) {
+            units.indexOf('kHz') === 0 || units.indexOf('кГц') === 0) {
             return 'kHz';
         } else if (units.indexOf('channel') === 0 || units.indexOf('канал') === 0) {
             return 'ch';
@@ -1172,7 +1102,7 @@ function MIProcessor() {
     }
 
     function parseGeneral(general) {
-        var result = {
+        const result = {
             filename: null,
             duration: null
         };
@@ -1182,7 +1112,7 @@ function MIProcessor() {
     }
 
     function parseVideo(video) {
-        var result = {
+        const result = {
             format: null,
             resolution: null,
             scanType: null,
@@ -1198,27 +1128,27 @@ function MIProcessor() {
             (video['Format profile'] || video['Профиль формата']) + ')' +
             (result.bitDepth !== 8 ? ' ' + result.bitDepth + '-bit' : '');
 
-        var width = parseNumbers(video['Width'] || video['Ширина'])[0];
-        var height = parseNumbers(video['Height'] || video['Высота'])[0];
-        var dar = video['Display aspect ratio'] || video['Соотношение сторон'];
+        const width = parseNumbers(video['Width'] || video['Ширина'])[0];
+        const height = parseNumbers(video['Height'] || video['Высота'])[0];
+        const dar = video['Display aspect ratio'] || video['Соотношение сторон'];
         result.resolution = width + 'x' + height + ' (' + dar + ')';
 
-        var scanType = video['Scan type'] || video['Тип развёртки'];
+        const scanType = video['Scan type'] || video['Тип развёртки'];
         if (scanType === 'Interleave' || scanType === 'Черезстрочная') {
             result.scanType = height + 'i';
         } else {
             result.scanType = height + 'p';
         }
 
-        var frameRate = video['Frame rate'] || video['Частота кадров'];
+        let frameRate = video['Frame rate'] || video['Частота кадров'];
         if (frameRate) {
             frameRate = frameRate.split(' ')[0].replace(',', '.');
             result.frameRate = '~' + frameRate + ' fps';
         }
 
-        var bitrate = parseNumbers(video['Bit rate'] || video['Битрейт']);
+        let bitrate = parseNumbers(video['Bit rate'] || video['Битрейт']);
         if (!bitrate) {
-            var bppf = video['Bits/(Pixel*Frame)'] || video['Бит/(Пиксели*Кадры)'];
+            const bppf = video['Bits/(Pixel*Frame)'] || video['Бит/(Пиксели*Кадры)'];
             if (bppf) {
                 bitrate = [bppf * width * height * frameRate, 'bps'];
                 if (bitrate[0] < 1000) {
@@ -1242,7 +1172,7 @@ function MIProcessor() {
     }
 
     function parseAudio(audio) {
-        var result = {
+        const result = {
             format: null, channels: null, bitDepth: null, sampleRate: null, bitRate: null,
             language: null, lang: null, title: null, string: null
         };
@@ -1252,32 +1182,32 @@ function MIProcessor() {
         result.lang = getShortLang(result.language);
         result.title = (audio['Title'] || audio['Заголовок']);
 
-        var bitDepth = parseNumbers(audio['Bit depth'] || audio['Битовая глубина']);
+        const bitDepth = parseNumbers(audio['Bit depth'] || audio['Битовая глубина']);
         if (bitDepth) {
             result.bitDepth = bitDepth[0];
         }
 
-        var format = (audio['Format'] || audio['Формат']);
+        const format = (audio['Format'] || audio['Формат']);
         result.format = format;
         if (audio['Format profile'] || audio['Профиль формата']) {
             result.format += ' ' + (audio['Format profile'] || audio['Профиль формата']);
         }
 
-        var channels = audio['Channel(s)'] || audio['Каналы'] || audio['Channel count'];
+        let channels = audio['Channel(s)'] || audio['Каналы'] || audio['Channel count'];
         if (channels.indexOf('/') > -1) {
             channels = channels.split('/')[0].trim();
         }
         channels = parseNumbers(channels);
         result.channels = channels[0] + ' ' + channels[1];
 
-        var sampleRate = audio['Sampling rate'] || audio['Частота'];
+        let sampleRate = audio['Sampling rate'] || audio['Частота'];
         if (sampleRate.indexOf('/') > -1) {
             sampleRate = sampleRate.split('/')[0].trim();
         }
         sampleRate = parseNumbers(sampleRate);
         result.sampleRate = sampleRate[0] + ' ' + sampleRate[1];
 
-        var bitrate = audio['Bit rate'] || audio['Битрейт'];
+        let bitrate = audio['Bit rate'] || audio['Битрейт'];
         if (!bitrate) {
             if (format === 'FLAC') {
                 if (bitDepth[0] === 16) {
@@ -1298,7 +1228,7 @@ function MIProcessor() {
     }
 
     function parseText(text) {
-        var result = {lang: null, language: null, title: null};
+        const result = {lang: null, language: null, title: null};
         result.title = (text['Title'] || text['Заголовок']);
         result.language = (text['Language'] || text['Язык']);
         result.language = translateLang(result.language);
@@ -1339,11 +1269,34 @@ function MIProcessor() {
     }
 }
 
+function PageHelper() {
+
+    function loadPage(url) {
+        const xhr = new XMLHttpRequest();
+        if (use_proxy) {
+            xhr.open('POST', 'https://files.kequing.ovh/wa.php', false);
+            xhr.send(JSON.stringify({'url': url}));
+        } else {
+            xhr.open('GET', url, false);
+            xhr.send();
+        }
+        const page = document.body.appendChild(document.createElement("div"));
+        page.innerHTML = /<body[^>]*>([\s\S]+)<\/body>/i.exec(xhr.responseText + "</center></body></html>")[1];
+        document.body.removeChild(page);
+        // console.log(page);
+        return page;
+    }
+
+    return {
+        loadPage: loadPage
+    }
+}
+
 function TextHelper() {
 
     function innerText(html) {
-        return html.replace(/<br>/g, '\n').replace(/<(?:.|\n)*?>/gm, '').replace(/&nbsp;/g, ' ').
-        replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/[ \t]+/g, ' ');
+        return html.replace(/<br>/g, '\n').replace(/<(?:.|\n)*?>/gm, '').replace(/&nbsp;/g, ' ')
+            .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&').replace(/[ \t]+/g, ' ');
     }
 
     function replaceAll(str, find, replace) {
@@ -1355,10 +1308,10 @@ function TextHelper() {
     }
 
     function testLang(text) {
-        var result = {eng: false, rus: false, jap: false};
-        if (text.replace(/[a-zA-Z0-9 _=!@#$%^&*\-\(\)\[\]\{\}|\\:;"\'\/?<>.,]/g, '').length === 0) {
+        const result = {eng: false, rus: false, jap: false};
+        if (text.replace(/[a-zA-Z0-9 _=!@#$%^&*\-()\[\]{}|\\:;"'\/?<>.,]/g, '').length === 0) {
             result.eng = true;
-        } else if (text.replace(/[а-яА-ЯёЁa-zA-Z0-9 _=!@#$%^&*\-\(\)\[\]\{\}|\\:;"\'\/?<>.,]/g, '').length === 0) {
+        } else if (text.replace(/[а-яА-ЯёЁa-zA-Z0-9 _=!@#$%^&*\-()\[\]{}|\\:;"'\/?<>.,]/g, '').length === 0) {
             result.rus = true;
         } else {
             result.jap = true;
@@ -1367,10 +1320,10 @@ function TextHelper() {
     }
 
     function padZero(number, count) {
-        var maxLength = ('' + count).length;
-        var curLength = ('' + number).length;
-        var result = '';
-        for (var i = 0; i < maxLength - curLength; i++) {
+        const maxLength = ('' + count).length;
+        const curLength = ('' + number).length;
+        let result = '';
+        for (let i = 0; i < maxLength - curLength; i++) {
             result += '0';
         }
         return result + number;
@@ -1384,32 +1337,15 @@ function TextHelper() {
     }
 }
 
-var script = document.createElement('script');
-var textContent = TextHelper.toString() + MIProcessor.toString();
+const script = document.createElement('script');
+let textContent = TextHelper.toString() + PageHelper.toString() + WAProcessor.toString() + MIProcessor.toString();
 if (window.location.href.indexOf('world-art') > -1) {
-    textContent += WAHelper.toString() + WAProcessor.toString() +
-        ' var waHelper = WAHelper(); ' + (!localStorage.guide ? ' waHelper.drawLinks(); waHelper.waProcessor.tryFallbackDescr(document);' : '');
-    window.addEventListener('message', function (event) {
-        if (event.data && event.data === 'load') {
-            var pageData = WAProcessor().loadData(document);
-            window.parent.postMessage(JSON.stringify(pageData), '*');
-        }
-    }, false);
-    window.addEventListener('load', function () {
-        if (window.parent !== window) {
-            window.parent.postMessage('ready', '*');
-        }
-    }, false);
+    use_proxy = false;
+    textContent += WAHelper.toString() + ' var waHelper = WAHelper(); ' +
+        (!localStorage.guide ? ' waHelper.drawLinks();' : '');
 } else {
-    textContent += NNMHelper.toString() + ' var nnmHelper = NNMHelper(); nnmHelper.drawLinks(); ';
-    window.addEventListener('message', function (event) {
-        if (event.data && event.data === 'ready') {
-            nnmHelper.onFrameReady();
-        } else if (event.data) {
-            var waData = JSON.parse(event.data);
-            nnmHelper.process(waData);
-        }
-    }, false);
+    use_proxy = true;
+    textContent += NNMHelper.toString() + ' var nnmHelper = NNMHelper(); nnmHelper.drawLinks();';
 }
 script.textContent = textContent;
 document.body.appendChild(script);
