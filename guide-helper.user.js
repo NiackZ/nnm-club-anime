@@ -2,7 +2,7 @@
 // @name          nnm-club^anime guide helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация расписания аниме-сезона по данным базы World-Art и портала KG-Portal
-// @version       1.0.0.2
+// @version       1.0.0.3
 // @author        ElSwanko
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/guide-helper.meta.js
@@ -167,12 +167,13 @@ function GuideHelper() {
 
         var name = document.querySelector('textarea[id=guide_name]').value;
         if (name) {
-            data.names.jap = data.names.rus;
+            data.names.oth = data.names.rus;
             data.names.rus = name;
         }
         if (data.names.jap) data.names.jap = data.names.jap.replace('[', '(').replace(']', ')');
         if (data.names.eng) data.names.eng = data.names.eng.replace('[', '(').replace(']', ')');
         if (data.names.rus) data.names.rus = data.names.rus.replace('[', '(').replace(']', ')');
+        if (data.names.oth) data.names.oth = data.names.oth.replace('[', '(').replace(']', ')');
 
         data.description = document.querySelector('textarea[id=guide_desc]').value.trim();
         if (data.description > 0 && data.description.indexOf('©') < 0) {
@@ -262,6 +263,13 @@ function GuideHelper() {
         }
     }
 
+    function getName(names) {
+        if (names.oth) return names.oth
+        if (names.eng) return names.eng
+        if (names.rus) return names.rus
+        if (names.jap) return names.jap
+    }
+
     function generateCoverage(data) {
         var result = '[hide=Покрытие сезона]\n';
 
@@ -274,7 +282,7 @@ function GuideHelper() {
         result += padTabs('[b][table][align=center]Название[/align]', cat) +
             '[mcol]TV 720\t\t\t[mcol]TV 720 rus\t\t[mcol]BD 720\t\t[mcol]BD 1080\t\t\t[mcol]Комментарии\n';
         iterateDateCategory(data[cat], function (values) {
-            result += padTabs('[row]' + values.names.jap, cat) + rowEnd;
+            result += padTabs('[row]' + getName(values.names), cat) + rowEnd;
         }, function (date) {
             result += '[row color=#80FFFF]с ' + date + '[col][col][col][col][col]\n';
         });
@@ -287,7 +295,7 @@ function GuideHelper() {
         result += padTabs('[b][table][align=center]Название[/align]', cat) +
             '[mcol]TV/BD 720\t\t\t[mcol]BD 1080\t\t\t[mcol]BD 720/1080 rus\t\t[mcol]Комментарии\n';
         iterateDateCategory(data[cat], function (values) {
-            result += padTabs('[row]' + values.names.jap, cat) + rowEnd;
+            result += padTabs('[row]' + getName(values.names), cat) + rowEnd;
         });
         result += padTabs('[row]—', cat) + rowEnd;
         result += '[/table][/b]\n\n';
@@ -297,7 +305,7 @@ function GuideHelper() {
         result += padTabs('[b][table][align=center]Название[/align]', cat) +
             '[mcol]BD 1080\t\t\t[mcol]BD 720\t\t\t[mcol]BD 720/1080 rus\t\t[mcol]Комментарии\n';
         iterateDateCategory(data[cat], function (values) {
-            result += padTabs('[row]' + values.names.jap, cat) + rowEnd;
+            result += padTabs('[row]' + getName(values.names), cat) + rowEnd;
         });
         result += padTabs('[row]—', cat) + rowEnd;
         result += '[/table][/b]\n\n';
@@ -381,7 +389,9 @@ function GuideHelper() {
     function getMaxLength() {
         checkData(function (category, url) {
             var data = guideData[category][url];
-            if (data.names.jap.length > maxLenght[category]) maxLenght[category] = data.names.jap.length;
+            var name_len = getName(data.names).length;
+            if (name_len > 55) name_len = 55;
+            if (name_len > maxLenght[category]) maxLenght[category] = name_len;
         });
     }
 
