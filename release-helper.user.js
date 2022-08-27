@@ -419,7 +419,8 @@ function WAHelper() {
                     const lang = mi.audio[i].lang === 'jap' ? 'raw' : mi.audio[i].lang;
                     block += '[b]#' + (i + 1) + ':[/b] ' + mi.audio[i].string;// + ' | [b]Звук:[/b] ' + mi.audio[i].language + '\n';
                     block += language === 'Японский' ? ' | [img]http://i5.imageban.ru/out/2015/02/23/839c5b0694b634374eebbe9fcb519cb6.png[/img] | Оригинал\n' : '';
-                    block += language === 'Русский' ? ' | [img]http://i4.imageban.ru/out/2015/02/23/2b34ca3f87aa5be5015c3073466f162f.png[/img] | \n' : ' | [b]Звук:[/b] ' + language + '\n';
+                    block += language === 'Русский' ? ' | [img]http://i4.imageban.ru/out/2015/02/23/2b34ca3f87aa5be5015c3073466f162f.png[/img] | \n' : '';
+                    if (language !== 'Японский' && language !== 'Русский') block += ' | [b]Звук:[/b] ' + language + '\n';
                     header += (header.indexOf(lang) === -1 ? (i === 0 ? ' ' : '+') + lang : '');
                 }
                 block = block.substring(0, block.length - 1);
@@ -444,10 +445,11 @@ function WAHelper() {
                             subs += `#${(i + 1)}': ' ${language}, ${mi.text[i].fileFormat}, Встроенные, ${mi.text[i].title}`;
                         else
                             subs += `+${mi.text[i].title}`;
-                        if (language === 'Русский')
-                            subs += ' | [img]http://i4.imageban.ru/out/2015/02/23/2b34ca3f87aa5be5015c3073466f162f.png[/img] | ';
+
+
                     }
                 }
+                subs += ' | [img]http://i4.imageban.ru/out/2015/02/23/2b34ca3f87aa5be5015c3073466f162f.png[/img] | [color=blue][/color]';
             }
             let translate = '';
             if (mi.general.filename && subs.length > 0) {
