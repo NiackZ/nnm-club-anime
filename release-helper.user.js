@@ -445,8 +445,6 @@ function WAHelper() {
                             subs += `#${(i + 1)}: ${language}, ${mi.text[i].fileFormat}, Встроенные, ${mi.text[i].title}`;
                         else
                             subs += `+${mi.text[i].title}`;
-
-
                     }
                 }
                 subs += ' | [img]http://i4.imageban.ru/out/2015/02/23/2b34ca3f87aa5be5015c3073466f162f.png[/img] | [color=blue][/color]';
