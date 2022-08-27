@@ -442,7 +442,7 @@ function WAHelper() {
                     const language = mi.text[i].language;
                     if (mi.text[i].lang !== 'und') {
                         if(!subs.includes(language))
-                            subs += `[b]#${(i + 1)}:[/b] ${language}, ${mi.text[i].fileFormat}, Встроенные, ${mi.text[i].title}`;
+                            subs += `[b]#${(i + 1)}:[/b] ${language}, ${mi.text[i].fileFormat}, ${mi.text[i].title}`;
                         else
                             subs += `+${mi.text[i].title}`;
                     }
