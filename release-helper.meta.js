@@ -1,12 +1,12 @@
 // ==UserScript==
-// @name          nnm-club^anime releaser helper
+// @name          nnm-club^anime releaser helper by NZ
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
 // @version       1.1.4
 // @author        ElSwanko edited by NIK220V
-// @homepage      https://github.com/ElSwanko/nnm-club-anime
-// @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
-// @downloadURL   https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.user.js
+// @homepage      https://github.com/NiackZ/nnm-club-anime
+// @updateURL     https://github.com/NiackZ/nnm-club-anime/raw/master/release-helper.meta.js
+// @downloadURL   https://github.com/NiackZ/nnm-club-anime/raw/master/release-helper.user.js
 // @match         http://www.world-art.ru/animation/*
 // @match         *://*.nnmclub.to/forum/release.php?what=anime_common*
 // @match         *://*.nnm-club.me/forum/release.php?what=anime_common*
