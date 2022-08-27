@@ -22,7 +22,7 @@ function WAHelper() {
         '_STRINGNAMES_ _HEADER_\n' +
         '[align=center][color=#336699][size=22][b]\n' +
         '_NAMES_\n' +
-        '[/b][/size][/color][/align][hr]\n' +
+        '[/b][/size][/color][/align]\n' +
         '[poster=right]_POSTER_[/poster]\n' +
         '[b]Жанр:[/b] _GENRE_\n' +
         '[b]Тип:[/b] _TYPE_\n' +
@@ -33,18 +33,22 @@ function WAHelper() {
         '_IFAUTHOR[b]Автор оригинала:[/b] _AUTHOR_ IFAUTHOR_\n' +
         '_IFDIRECTOR[b]Режиссер:[/b] _DIRECTOR_ IFDIRECTOR_\n' +
         '[b]Ссылки:[/b] _INFOLINKS_\n' +
-        '[hr]\n' +
         '[b]Возраст:[/b] _RATING_\n' +
-        '[hr]\n' +
+        '\n' +
         '[b]Описание:[/b]\n' +
         '_DESCRIPTION_\n' +
-        '[hr]\n' +
+        '\n' +
+        '[b]Субтитры:[/b] \n' +
+        '_SUBSLINE_\n' +
+        '\n' +
         '[b]Качество видео:[/b] _QUALITY_\n' +
         '[b]Видео:[/b] _VIDEO_\n' +
-        '_AUDIO_\n' +
+        '\n' +
         '[b]Язык озвучки:[/b] _SOUNDLINE_\n' +
-        '[b]Субтитры:[/b] _SUBSLINE_\n' +
-        '[b]Перевод:[/b] _TRANSLATION_\n' +
+        '[b]Качество озвучки:[/b] Двухголосная, трехголосная, многоголосная, закадровая, дубляж.\n' +
+        '[b]Аудио:[/b]\n'+
+        '_AUDIO_\n' +
+        '\n' +
         '[brc][align=center][b]Скриншоты:[/b]\n' +
         '_SCREENSHOTS_\n' +
         '[/align]\n' +
@@ -60,7 +64,7 @@ function WAHelper() {
         '[spoiler=Media Info на первую серию][pre]\n' +
         '_MEDIAINFO_\n' +
         '[/pre][/spoiler]\n' +
-        '[align=center][b]Время раздачи:[/b] круглосуточно[/align]\n';
+        '[align=center][b]Время раздачи:[/b] с 10 до 20[/align]\n';
 
     const episodeTemplate = localStorage.episode ? localStorage.episode : '[b]_NUM_[/b]. [color=#008000]_TXT_[/color]';
 
@@ -349,10 +353,10 @@ function WAHelper() {
             result = result.replace('_MALURL_', data.infoLinks['MAL']);
             links += ', [url=' + data.infoLinks['MAL'] + ']MyAnimeList[/url]';
         }
-        if (data.infoLinks['SCHEDULE']) {
-            result = result.replace('_AIRURL_', data.infoLinks['SCHEDULE']);
-            links += ', [url=' + data.infoLinks['SCHEDULE'] + ']Сетка вещания[/url]';
-        }
+        // if (data.infoLinks['SCHEDULE']) {
+        //     result = result.replace('_AIRURL_', data.infoLinks['SCHEDULE']);
+        //     links += ', [url=' + data.infoLinks['SCHEDULE'] + ']Сетка вещания[/url]';
+        // }
         result = result.replace('_INFOLINKS_', links);
 
         // IF Replacing
@@ -394,7 +398,9 @@ function WAHelper() {
             let audio = '';
             let sound = '';
             let block = '';
-            if (mi.audio.length === 1) {
+
+            //if (mi.audio.length === 1) {
+            if (false){
                 audio = mi.audio[0].string;
                 if (mi.audio[0].lang !== 'und') {
                     sound = mi.audio[0].language;
@@ -403,16 +409,24 @@ function WAHelper() {
                 block = '[b]Аудио:[/b] ' + audio + ' | [b]Звук:[/b] ' + sound;
             } else {
                 for (let i = 0; i < mi.audio.length; i++) {
+                    const language = mi.audio[i].language;
                     audio += '#' + (i + 1) + ': ' + mi.audio[i].string + '; ';
                     if (mi.audio[i].lang !== 'und') {
-                        sound += '#' + (i + 1) + ': ' + mi.audio[i].language + '; ';
+                        //sound += '#' + (i + 1) + ': ' + mi.audio[i].language + '; ';
+                        if (!sound.includes(language)) //Избежать дублей
+                            sound += language + ', ';
                     }
                     const lang = mi.audio[i].lang === 'jap' ? 'raw' : mi.audio[i].lang;
-                    block += '[b]Аудио #' + (i + 1) + ':[/b] ' + mi.audio[i].string + ' | [b]Звук:[/b] ' + mi.audio[i].language + '\n';
+                    block += '[b]#' + (i + 1) + ':[/b] ' + mi.audio[i].string;// + ' | [b]Звук:[/b] ' + mi.audio[i].language + '\n';
+                    block += language === 'Японский' ? ' | [img]http://i5.imageban.ru/out/2015/02/23/839c5b0694b634374eebbe9fcb519cb6.png[/img] | Оригинал\n' : '';
+                    block += language === 'Русский' ? ' | [img]http://i4.imageban.ru/out/2015/02/23/2b34ca3f87aa5be5015c3073466f162f.png[/img] | \n' : ' | [b]Звук:[/b] ' + language + '\n';
                     header += (header.indexOf(lang) === -1 ? (i === 0 ? ' ' : '+') + lang : '');
                 }
                 block = block.substring(0, block.length - 1);
             }
+            sound = sound.slice(0, sound.lastIndexOf(", ")).toLowerCase(); //Убрать лишние знаки в конце
+            sound = sound.charAt(0).toUpperCase() + sound.slice(1); //Первая буква - заглавная
+
             result = result.replace('_AUDIOLINE_', audio);
             result = result.replace('_SOUNDLINE_', sound);
             result = result.replace('_AUDIO_', block);
@@ -426,7 +440,12 @@ function WAHelper() {
                 for (let i = 0; i < mi.text.length; i++) {
                     const language = mi.text[i].language;
                     if (mi.text[i].lang !== 'und') {
-                        subs += (subs.indexOf(language) === -1 ? '#' + (i + 1) + ': ' + language + '; ' : '');
+                        if(!subs.includes(language))
+                            subs += `#${(i + 1)}': ' ${language}, ${mi.text[i].fileFormat}, Встроенные, ${mi.text[i].title}`;
+                        else
+                            subs += `+${mi.text[i].title}`;
+                        if (language === 'Русский')
+                            subs += ' | [img]http://i4.imageban.ru/out/2015/02/23/2b34ca3f87aa5be5015c3073466f162f.png[/img] | ';
                     }
                 }
             }
@@ -1244,11 +1263,12 @@ function MIProcessor() {
     }
 
     function parseText(text) {
-        const result = {lang: null, language: null, title: null};
+        const result = {lang: null, language: null, title: null, fileFormat: null};
         result.title = (text['Title'] || text['Заголовок']);
         result.language = (text['Language'] || text['Язык']);
         result.language = translateLang(result.language);
         result.lang = getShortLang(result.language);
+        result.fileFormat = (text['Format'] || text['Формат']);
         return result;
     }
 
