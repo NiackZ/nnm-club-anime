@@ -239,6 +239,9 @@ function WAHelper() {
         result = result.replace('_STRINGNAMES_', text.substring(3));
 
         text = '';
+        if (data.names.jap.length > 0) {
+            text += data.names.jap + '\n';
+        }
         if (data.names.oth.length > 0) {
             text += data.names.oth + '\n';
         }
@@ -248,9 +251,7 @@ function WAHelper() {
         if (data.names.rus.length > 0) {
             text += data.names.rus + '\n';
         }
-        if (data.names.jap.length > 0) {
-            text += data.names.jap + '\n';
-        }
+
         result = result.replace('_NAMES_', text.substring(0, text.length - 1));
 
         if (data.company) {
