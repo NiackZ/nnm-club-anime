@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper by NZ
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.1.4
+// @version       1.1.5
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/NiackZ/nnm-club-anime
 // @updateURL     https://github.com/NiackZ/nnm-club-anime/raw/master/release-helper.meta.js

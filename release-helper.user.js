@@ -1,9 +1,8 @@
-
 // ==UserScript==
 // @name          nnm-club^anime releaser helper by NZ
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.1.4
+// @version       1.1.5
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/NiackZ/nnm-club-anime
 // @updateURL     https://github.com/NiackZ/nnm-club-anime/raw/master/release-helper.meta.js
@@ -19,7 +18,7 @@
 function WAHelper() {
 
     const defaultTemplate =
-        '_STRINGNAMES_ _HEADER_\n' +
+        '_STRINGNAMES_\n' +
         '[align=center][color=#336699][size=22][b]\n' +
         '_NAMES_\n' +
         '[/b][/size][/color][/align]\n' +
@@ -46,7 +45,7 @@ function WAHelper() {
         '\n' +
         '[b]Язык озвучки:[/b] _SOUNDLINE_\n' +
         '[b]Качество озвучки:[/b] Двухголосная, трехголосная, многоголосная, закадровая, дубляж.\n' +
-        '[b]Аудио:[/b]\n'+
+        '[b]Аудио:[/b]\n' +
         '_AUDIO_\n' +
         '\n' +
         '[brc][align=center][b]Скриншоты:[/b]\n' +
@@ -354,10 +353,7 @@ function WAHelper() {
             result = result.replace('_MALURL_', data.infoLinks['MAL']);
             links += ', [url=' + data.infoLinks['MAL'] + ']MyAnimeList[/url]';
         }
-        // if (data.infoLinks['SCHEDULE']) {
-        //     result = result.replace('_AIRURL_', data.infoLinks['SCHEDULE']);
-        //     links += ', [url=' + data.infoLinks['SCHEDULE'] + ']Сетка вещания[/url]';
-        // }
+
         result = result.replace('_INFOLINKS_', links);
 
         // IF Replacing
@@ -400,32 +396,23 @@ function WAHelper() {
             let sound = '';
             let block = '';
 
-            //if (mi.audio.length === 1) {
-            if (false){
-                audio = mi.audio[0].string;
-                if (mi.audio[0].lang !== 'und') {
-                    sound = mi.audio[0].language;
+            for (let i = 0; i < mi.audio.length; i++) {
+                const language = mi.audio[i].language;
+                audio += '#' + (i + 1) + ': ' + mi.audio[i].string + '; ';
+                if (mi.audio[i].lang !== 'und') {
+                    //sound += '#' + (i + 1) + ': ' + mi.audio[i].language + '; ';
+                    if (!sound.includes(language)) //Избежать дублей
+                        sound += language + ', ';
                 }
-                header += ' ' + (mi.audio[0].lang === 'jap' ? 'raw' : mi.audio[0].lang);
-                block = '[b]Аудио:[/b] ' + audio + ' | [b]Звук:[/b] ' + sound;
-            } else {
-                for (let i = 0; i < mi.audio.length; i++) {
-                    const language = mi.audio[i].language;
-                    audio += '#' + (i + 1) + ': ' + mi.audio[i].string + '; ';
-                    if (mi.audio[i].lang !== 'und') {
-                        //sound += '#' + (i + 1) + ': ' + mi.audio[i].language + '; ';
-                        if (!sound.includes(language)) //Избежать дублей
-                            sound += language + ', ';
-                    }
-                    const lang = mi.audio[i].lang === 'jap' ? 'raw' : mi.audio[i].lang;
-                    block += '[b]#' + (i + 1) + ':[/b] ' + mi.audio[i].string;// + ' | [b]Звук:[/b] ' + mi.audio[i].language + '\n';
-                    block += language === 'Японский' ? ' | [img]http://i5.imageban.ru/out/2015/02/23/839c5b0694b634374eebbe9fcb519cb6.png[/img] | Оригинал\n' : '';
-                    block += language === 'Русский' ? ' | [img]http://i4.imageban.ru/out/2015/02/23/2b34ca3f87aa5be5015c3073466f162f.png[/img] | [color=blue][/color] ()\n' : '';
-                    if (language !== 'Японский' && language !== 'Русский') block += ' | [b]Звук:[/b] ' + language + '\n';
-                    header += (header.indexOf(lang) === -1 ? (i === 0 ? ' ' : '+') + lang : '');
-                }
-                block = block.substring(0, block.length - 1);
+                const lang = mi.audio[i].lang === 'jap' ? 'raw' : mi.audio[i].lang;
+                block += '[b]#' + (i + 1) + ':[/b] ' + mi.audio[i].string;// + ' | [b]Звук:[/b] ' + mi.audio[i].language + '\n';
+                block += language === 'Японский' ? ' | [img]http://i5.imageban.ru/out/2015/02/23/839c5b0694b634374eebbe9fcb519cb6.png[/img] | Оригинал\n' : '';
+                block += language === 'Русский' ? ' | [img]http://i4.imageban.ru/out/2015/02/23/2b34ca3f87aa5be5015c3073466f162f.png[/img] | [color=blue][/color] ()\n' : '';
+                if (language !== 'Японский' && language !== 'Русский') block += ' | [b]Звук:[/b] ' + language + '\n';
+                header += (header.indexOf(lang) === -1 ? (i === 0 ? ' ' : '+') + lang : '');
             }
+
+            block = block.substring(0, block.length - 1);
             sound = sound.slice(0, sound.lastIndexOf(", ")).toLowerCase(); //Убрать лишние знаки в конце
             sound = sound.charAt(0).toUpperCase() + sound.slice(1); //Первая буква - заглавная
 
@@ -434,22 +421,16 @@ function WAHelper() {
             result = result.replace('_AUDIO_', block);
 
             let subs = '';
-            if (mi.text.length === 1) {
-                if (mi.text[0].lang !== 'und') {
-                    subs = mi.text[0].language;
+            for (let i = 0; i < mi.text.length; i++) {
+                const language = mi.text[i].language;
+                if (mi.text[i].lang !== 'und') {
+                    if (!subs.includes(language))
+                        subs += `[b]#${(i + 1)}:[/b] ${language}, ${mi.text[i].fileFormat}, ${mi.text[i].title}`;
+                    else
+                        subs += `+${mi.text[i].title}`;
                 }
-            } else {
-                for (let i = 0; i < mi.text.length; i++) {
-                    const language = mi.text[i].language;
-                    if (mi.text[i].lang !== 'und') {
-                        if(!subs.includes(language))
-                            subs += `[b]#${(i + 1)}:[/b] ${language}, ${mi.text[i].fileFormat}, ${mi.text[i].title}`;
-                        else
-                            subs += `+${mi.text[i].title}`;
-                    }
-                }
-                subs += ' | [img]http://i4.imageban.ru/out/2015/02/23/2b34ca3f87aa5be5015c3073466f162f.png[/img] | [color=blue][/color]';
             }
+            subs += ' | [img]http://i4.imageban.ru/out/2015/02/23/2b34ca3f87aa5be5015c3073466f162f.png[/img] | [color=blue][/color]';
             let translate = '';
             if (mi.general.filename && subs.length > 0) {
                 const ff = mi.general.filename.split(/[\[\]]/);
@@ -742,9 +723,15 @@ function NNMHelper() {
             return {
                 jap: 0, rus: 0, eng: 0, inc: function (lang) {
                     switch (lang) {
-                        case 'jap': this.jap++; break;
-                        case 'rus': this.rus++; break;
-                        case 'eng': this.eng++; break;
+                        case 'jap':
+                            this.jap++;
+                            break;
+                        case 'rus':
+                            this.rus++;
+                            break;
+                        case 'eng':
+                            this.eng++;
+                            break;
                     }
                 }
             }
