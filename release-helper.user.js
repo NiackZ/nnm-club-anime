@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.1.1
+// @version       1.1.2
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -11,7 +11,7 @@
 // @match         *://*.nnmclub.to/forum/release.php?what=anime_common*
 // @match         *://*.nnm-club.me/forum/release.php?what=anime_common*
 // @match         *://*.nnm-club.name/forum/release.php?what=anime_common*
-// @match         *://dsenxis5txr4zbxe.onion/forum/release.php?what=anime_common*
+// @match         *://nnmclub2vvjqzjne6q4rrozkkkdmlvnrcsyes2bbkm7e5ut2aproy4id.onion/forum/release.php?what=anime_common*
 // @grant         none
 // ==/UserScript==
 //
@@ -33,6 +33,7 @@ function WAHelper() {
         '_IFAUTHOR[b]Автор оригинала:[/b] _AUTHOR_ IFAUTHOR_\n' +
         '_IFDIRECTOR[b]Режиссер:[/b] _DIRECTOR_ IFDIRECTOR_\n' +
         '[b]Ссылки:[/b] _INFOLINKS_\n' +
+        '[b]Возрастное ограничение:[/b] [b][color=blue]12+[/color] (для зрителей, достигших 12 лет)[/b]\n' +
         '[hr]\n' +
         '[b]Описание:[/b]\n' +
         '_DESCRIPTION_\n' +
