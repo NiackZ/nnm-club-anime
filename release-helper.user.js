@@ -2,7 +2,7 @@
 // @name          nnm-club^anime releaser helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация оформления релиза по данным на странице аниме в базе World-Art
-// @version       1.1.2
+// @version       1.1.3
 // @author        ElSwanko edited by NIK220V
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/release-helper.meta.js
@@ -33,7 +33,8 @@ function WAHelper() {
         '_IFAUTHOR[b]Автор оригинала:[/b] _AUTHOR_ IFAUTHOR_\n' +
         '_IFDIRECTOR[b]Режиссер:[/b] _DIRECTOR_ IFDIRECTOR_\n' +
         '[b]Ссылки:[/b] _INFOLINKS_\n' +
-        '[b]Возрастное ограничение:[/b] [b][color=blue]12+[/color] (для зрителей, достигших 12 лет)[/b]\n' +
+        '[hr]\n' +
+        '[b]Возраст:[/b] _RATING_\n' +
         '[hr]\n' +
         '[b]Описание:[/b]\n' +
         '_DESCRIPTION_\n' +
@@ -70,6 +71,7 @@ function WAHelper() {
     let quality = '';
     let poster = '';
     let translation = '';
+    let rating = '';
     const altEpisodes = [];
 
     const textHelper = TextHelper();
@@ -102,6 +104,7 @@ function WAHelper() {
             '<b>_DIRECTOR_</b> — готовый BB-код ссылки на режиссёра; ' +
             '<b>_DIRECTORNAME_</b>, <b>_DIRECTORURL_</b> — режиссёр и ссылка по отдельности;<br>' +
             '<b>_INFOLINKS_</b> — готовый BB-код информационных ссылок одним блоком;<br>' +
+            '<b>_RATING_</b> — готовый BB-код с возрастной маркировкой по классификации РФ;<br>' +
             '<b>_WAURL_</b>, <b>_ANNURL_</b>, <b>_ANIDBURL_</b>, <b>_MALURL_</b>, ' +
             '<b>_AIRURL_</b> — информационные ссылки по отдельности;<br>' +
             '<b>_DESCRIPTION_</b> — описание; <b>_NOTES_</b> — справка;<br>' +
@@ -122,7 +125,7 @@ function WAHelper() {
             '<b>_SOUNDLINE_</b> — язык звуковых дорожек одной строкой; <b>_SUBSLINE_</b> — язык субтитров одной строкой;<br>' +
             '<b>_HEADER_</b> — заголовок релиза с краткой технической информацией.<br><br>' +
             '<strong>Шаблон:</strong><br>' +
-            '<textarea rows=12 cols=95 id=templateText>' +
+            '<textarea rows=12 cols=110 id=templateText>' +
             (localStorage.template ? localStorage.template : defaultTemplate) +
             '</textarea><br>',
             'waHelper.setTemplate();');
@@ -136,16 +139,24 @@ function WAHelper() {
 
     function openMediaInfoDiv() {
         openDiv('<strong>Описание:</strong><br>' +
-            '<textarea rows=5 cols=95 id=descriptionInput>' + description + '</textarea><br><br>' +
+            '<textarea rows=5 cols=110 id=descriptionInput>' + description + '</textarea><br><br>' +
             '<strong>Эпизоды:</strong><br>' +
-            '<textarea rows=5 cols=95 id=episodesInput>' + episodes + '</textarea><br><br>' +
+            '<textarea rows=5 cols=110 id=episodesInput>' + episodes + '</textarea><br><br>' +
             '<strong>Отчёт Media Info:</strong><br>' +
-            '<textarea rows=10 cols=95 id=mediaInfoInput>' + mediaInfo + '</textarea><br><br>' +
+            '<textarea rows=10 cols=110 id=mediaInfoInput>' + mediaInfo + '</textarea><br><br>' +
             '<strong>Скриншоты:</strong><br>' +
-            '<textarea rows=5 cols=95 id=screenShotsInput>' + screenshots + '</textarea><br><br>' +
-            '<b>Качество видео:</b>&nbsp;<input id=qualityInput width=400px value="' + quality + '">&nbsp;' +
+            '<textarea rows=5 cols=110 id=screenShotsInput>' + screenshots + '</textarea><br><br>' +
+            '<b>Качество видео:</b>&nbsp;<input id=qualityInput width=300px value="' + quality + '">&nbsp;' +
             '<b>Постер:</b>&nbsp;<input id=posterInput width=400px value="' + poster + '">&nbsp;' +
-            '<b>Перевод:</b>&nbsp;<input id=translationInput width=400px value="' + translation + '"><br><br>',
+            '<b>Перевод:</b>&nbsp;<input id=translationInput width=400px value="' + translation + '">&nbsp;' +
+            '<b>Возраст:</b>&nbsp;<select id=ratingSelect width=200px>' +
+            '<option id=0 value="[b][color=green]0+[/color][/b] (Для любой зрительской аудитории)">0+</option>' +
+            '<option id=6 value="[b][color=green]6+[/color][/b] (Для зрителей старше 6 лет)">6+</option>' +
+            '<option id=12 selected value="[b][color=blue]12+[/color][/b] (Для зрителей старше 12 лет)">12+</option>' +
+            '<option id=16 value="[b][color=blue]16+[/color][/b] (Для зрителей старше 16 лет)">16+</option>' +
+            '<option id=18 value="[b][color=red]18+[/color][/b] (Для зрителей старше 18 лет, запрещено для детей)">18+</option>' +
+            '<option id=21 value="Без возрастной маркировки">Нет</option>' +
+            '</select><br><br>',
             'waHelper.setMediaInfo();');
     }
 
@@ -158,6 +169,7 @@ function WAHelper() {
         quality = div.querySelector('input#qualityInput').value;
         poster = div.querySelector('input#posterInput').value;
         translation = div.querySelector('input#translationInput').value;
+        rating = div.querySelector('select#ratingSelect').selectedOptions[0].value;
         closeDiv(div);
 
         if (episodes && episodes.length > 0) {
@@ -175,7 +187,7 @@ function WAHelper() {
             '   <div style="position: absolute; top: 0;left: 0; background-color: gray; filter: alpha(opacity=70);' +
             ' -moz-opacity: 0.7; opacity: 0.7; z-index: 200; width: 100%; height: 100%"></div>' +
             '   <div style="position: absolute; top: 0; margin: auto; z-index: 300; width: 100%; height: 500px;">' +
-            '       <div style="box-shadow: 0 0 10px 1px black; width: 800px; background-color: white; padding: 20px; margin: 25px auto auto;">' +
+            '       <div style="box-shadow: 0 0 10px 1px black; width: 900px; background-color: white; padding: 20px; margin: 25px auto auto;">' +
             "<p style='text-align:right;'><a href='javascript:;' style=text-decoration:none onclick='waHelper.closeDiv();'><font color=red>X</font></a></p>" +
             innerHTML +
             "<table cellpadding=0 cellspacing=2 border=0>" +
@@ -286,6 +298,9 @@ function WAHelper() {
         }
         if (screenshots) {
             result = result.replace('_SCREENSHOTS_', screenshots);
+        }
+        if (rating) {
+            result = result.replace('_RATING_', rating);
         }
         if (data.notes) {
             result = result.replace('_NOTES_', data.notes);
@@ -476,7 +491,7 @@ function WAHelper() {
             if (!successful) {
                 openDiv('<strong>Результат:</strong><br>' +
                     '<p><font color=red>Скрипту не удалось скопировать текст автоматически. Сделайте это вручную.</font></p>' +
-                    '<textarea rows=30 cols=95 id=resultInfo onclick="this.select()">' + text + '</textarea><br>' +
+                    '<textarea rows=30 cols=110 id=resultInfo onclick="this.select()">' + text + '</textarea><br>' +
                     '<table cellpadding=0 cellspacing=2 border=0>');
             }
         } catch (err) {
