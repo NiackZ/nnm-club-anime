@@ -2,7 +2,7 @@
 // @name          nnm-club^anime guide helper
 // @namespace     nnm-club^anime.Scripts
 // @description   Генерация расписания аниме-сезона по данным базы World-Art и портала KG-Portal
-// @version       1.0.0.3
+// @version       1.0.0.4
 // @author        ElSwanko
 // @homepage      https://github.com/ElSwanko/nnm-club-anime
 // @updateURL     https://github.com/ElSwanko/nnm-club-anime/raw/master/guide-helper.meta.js
@@ -274,17 +274,16 @@ function GuideHelper() {
         var result = '[hide=Покрытие сезона]\n';
 
         result += '[url=http://anichart.net/' + localStorage.season + '/]anichart[/url]\n';
-        result += '[url=http://rusub.tk/]Сводная таблица русаба[/url]\n\n';
 
         var cat = 'TV';
-        var rowEnd = '[col color=#FFFFFF]—\t\t[col color=#FFFFFF]—\t\t[col color=#FFFFFF]—\t[col color=#FFFFFF]—\t\t[col]—\n';
+        var rowEnd = '[col color=#FFFFFF]—\t\t[col color=#FFFFFF]—\t\t[col color=#FFFFFF]—\t\t[col color=#FFFFFF]—\t[col color=#FFFFFF]—\t\t[col]—\n';
         result += '[b]' + catNames[cat] + '[/b]\n\n';
         result += padTabs('[b][table][align=center]Название[/align]', cat) +
-            '[mcol]TV 720\t\t\t[mcol]TV 720 rus\t\t[mcol]BD 720\t\t[mcol]BD 1080\t\t\t[mcol]Комментарии\n';
+            '[mcol]TV 720\t\t\t[mcol]TV 1080\t\t\t[mcol]TV 1080 rus\t\t[mcol]BD 720\t\t[mcol]BD 1080\t\t\t[mcol]Комментарии\n';
         iterateDateCategory(data[cat], function (values) {
             result += padTabs('[row]' + getName(values.names), cat) + rowEnd;
         }, function (date) {
-            result += '[row color=#80FFFF]с ' + date + '[col][col][col][col][col]\n';
+            result += '[row color=#80FFFF]с ' + date + '[col][col][col][col][col][col]\n';
         });
         result += padTabs('[row]—', cat) + rowEnd;
         result += '[/table][/b]\n\n';
